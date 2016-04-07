@@ -124,16 +124,20 @@ def genBoards(game_board):
     return boards
 
 
-# A
+# A class for the Random chance nodes in the game tree.  Also the root node
 class RandomNode:
 
+    # Build the tree
     def __init__(self, game_board, depth, root):
 
         self.parent = []
         self.expectimax_val = []
         self.move = []
 
+        # If root node
         if root:
+            
+            # Use parallel execution
             self.game_board = game_board
             usePool = 1
             if usePool:
@@ -142,6 +146,7 @@ class RandomNode:
                 pool = Pool(processes=4)
                 validMove = checkValidMoves(game_board)
                 try:
+                    # Evaluaate the branches of the tree
                     if validMove[0]:
                         # self.right = MoveNode(right_move_return(game_board), depth)
                         right_game_board = right_move_return(game_board)
@@ -170,7 +175,8 @@ class RandomNode:
                         down_result = pool.apply_async(MoveNode, (down_game_board, down_depth))
                     else:
                         self.down = []
-
+                    
+                    # Get the results from parallel pool
                     if validMove[0]:
                         self.right = right_result.get()
                     if validMove[1]:
@@ -179,12 +185,16 @@ class RandomNode:
                         self.up = up_result.get()
                     if validMove[3]:
                         self.down = down_result.get()
+                
+                # Close the pool on exception
                 except:
                     pool.close()
                     pool.terminate()
                     pool.join()
+                # Close the pool
                 pool.close()
 
+            # Not using the parallel pool
             else:
                 validMove = checkValidMoves(game_board)
 
@@ -205,12 +215,14 @@ class RandomNode:
                 else:
                     self.down = []
 
+        # Build branches not from the root node
         else:
             self.left = MoveNode(left_move_return(game_board), depth)
             self.right = MoveNode(right_move_return(game_board), depth)
             self.up = MoveNode(up_move_return(game_board), depth)
             self.down = MoveNode(down_move_return(game_board), depth)
 
+    # Evaluate the expectimax value from each branch
     def eval_cost(self,isroot):
 
         # Check if at root node
@@ -258,6 +270,7 @@ class RandomNode:
                 else:
                     down_cost = 100000
 
+                # Gather results form the parallel pool
                 if validMoves[0]:
                     right_cost = right_eval.get()
                 if validMoves[1]:
@@ -284,14 +297,12 @@ class RandomNode:
             up_cost = self.up.eval_cost()
             down_cost = self.down.eval_cost()
 
-
+        # Calculate the min cost of the children
         cost = np.array([left_cost, right_cost, up_cost, down_cost])
         ind = np.where(cost == cost.min())
-        # if isroot:
-            # print cost
-            # print cost.min()
         cost = cost.min()
 
+        # pick the move with the minimum expected cost
         if ind[0][0] == 0:
             self.move = 'left'
         if ind[0][0] == 1:
@@ -300,7 +311,7 @@ class RandomNode:
             self.move = 'up'
         if ind[0][0] == 3:
             self.move = 'down'
-
+            
         return cost
 
     # Set an attribute dynamically
