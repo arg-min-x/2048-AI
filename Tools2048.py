@@ -111,7 +111,7 @@ def calcDistance(coords1, coords2):
 
 # Generate all possible game boards from a given board state
 def genBoards(game_board):
-    zeroInd = np.array(np.where(np.array(game_board) == 0), dtype='int16')
+    zeroInd = np.array(np.where(np.array(game_board) == 0))
     num_boards = np.size(zeroInd, axis=1)
     game_board = np.array(game_board)
     boards = np.tile(game_board[:,:,np.newaxis],[1,1,2*num_boards])
@@ -119,6 +119,7 @@ def genBoards(game_board):
     # All boards with a 2  and added
     for ind in range(0, num_boards):
         boards[zeroInd[0,ind],zeroInd[1, ind], ind] = 2
+    for ind in range(0, num_boards):
         boards[zeroInd[0, ind],zeroInd[1, ind], ind+num_boards] = 4
 
     return boards
@@ -217,10 +218,28 @@ class RandomNode:
 
         # Build branches not from the root node
         else:
-            self.left = MoveNode(left_move_return(game_board), depth)
-            self.right = MoveNode(right_move_return(game_board), depth)
-            self.up = MoveNode(up_move_return(game_board), depth)
-            self.down = MoveNode(down_move_return(game_board), depth)
+            # self.left = MoveNode(left_move_return(game_board), depth)
+            # self.right = MoveNode(right_move_return(game_board), depth)
+            # self.up = MoveNode(up_move_return(game_board), depth)
+            # self.down = MoveNode(down_move_return(game_board), depth)
+            validMove = checkValidMoves(game_board)
+
+            if validMove[0]:
+                self.right = MoveNode(right_move_return(game_board), depth)
+            else:
+                self.left = []
+            if validMove[1]:
+                self.left = MoveNode(left_move_return(game_board), depth)
+            else:
+                self.right = []
+            if validMove[2]:
+                self.up = MoveNode(up_move_return(game_board), depth)
+            else:
+                self.up = []
+            if validMove[3]:
+                self.down = MoveNode(down_move_return(game_board), depth)
+            else:
+                self.down = []
 
     # Evaluate the expectimax value from each branch
     def eval_cost(self,isroot):
@@ -385,9 +404,9 @@ def evalNextMove(game_board):
     if num_boards >13:
         depth = 1
     elif num_boards > 5:
-        depth = 2
+        depth = 1
     else:
-        depth = 3
+        depth = 1
     rand_node = RandomNode(game_board, depth, 1)
     rand_node.eval_cost(1)
     next_move = rand_node.move
