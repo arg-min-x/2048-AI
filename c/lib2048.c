@@ -9,26 +9,34 @@
 #include "lib2048.h"
 #include <stdlib.h>
 
+// ========================================================================================
+//          Game Tree Structures and functions
+// ========================================================================================
+void set_move_node_null(struct rand_node *leaf){
+    leaf->left = NULL;
+    leaf->right = NULL;
+    leaf->up = NULL;
+    leaf->down = NULL;
+}
+
 void create_children_move_node(struct move_node *leaf){
-    struct rand_node *move1, *move2;
-    move1 = malloc(sizeof(rand_node));
-    move2 = malloc(sizeof(rand_node));
-    leaf->move1 = move1;
-    leaf->move2 = move2;
+    // Allocate the pointer array
+    struct rand_node **moves_array = malloc(leaf->num_moves*sizeof(struct rand_node *));
     
-    leaf->move1->left = NULL;
-    leaf->move1->right = NULL;
-    leaf->move1->up = NULL;
-    leaf->move1->down = NULL;
+    // Allocate the child move nodes
+    for (int ind = 0; ind < leaf->num_moves; ind++) {
+        moves_array[ind] = malloc(sizeof(rand_node));
+        set_move_node_null(moves_array[ind]);
+    }
     
-    leaf->move2->left = NULL;
-    leaf->move2->right = NULL;
-    leaf->move2->up = NULL;
-    leaf->move2->down = NULL;
+    // Asign the move array pointer to the parent
+    leaf->moves = moves_array;
 }
 
 // Create The tree
 void create_tree(struct rand_node *root, int depth){
+    
+    int number_moves = 14;
     
     // If at the end of a tree
     if (depth == 1) {
@@ -44,6 +52,12 @@ void create_tree(struct rand_node *root, int depth){
         root->right = right;
         root->up = up;
         root->down = down;
+        
+        // Set the number of moves
+        root->left->num_moves = number_moves;
+        root->right->num_moves = number_moves;
+        root->up->num_moves = number_moves;
+        root->down->num_moves = number_moves;
         
         // Construct child nodes
         create_children_move_node(left);
@@ -66,6 +80,12 @@ void create_tree(struct rand_node *root, int depth){
         root->up = up;
         root->down = down;
         
+        // Set the number of moves
+        root->left->num_moves = number_moves;
+        root->right->num_moves = number_moves;
+        root->up->num_moves = number_moves;
+        root->down->num_moves = number_moves;
+        
         // Construct child nodes
         create_children_move_node(left);
         create_children_move_node(right);
@@ -73,49 +93,56 @@ void create_tree(struct rand_node *root, int depth){
         create_children_move_node(down);
         
         // Call Constructor on the next level
-        create_tree_next_level(root->left, depth-1);
-        create_tree_next_level(root->right, depth-1);
-        create_tree_next_level(root->up, depth-1);
-        create_tree_next_level(root->down, depth-1);
+        for (int ind = 0; ind < root->left->num_moves; ind++) {
+            create_tree(root->left->moves[ind], depth-1);
+        }
+        
+        for (int ind = 0; ind < root->right->num_moves; ind++) {
+            create_tree(root->right->moves[ind], depth-1);
+        }
+        
+        for (int ind = 0; ind < root->up->num_moves; ind++) {
+            create_tree(root->up->moves[ind], depth-1);
+        }
+        
+        for (int ind = 0; ind < root->down->num_moves; ind++) {
+            create_tree(root->down->moves[ind], depth-1);
+        }
     }
     
 }
-
-// Call the create tree function on each random node of the parent
-void create_tree_next_level(struct move_node *leaf,int depth){
-    create_tree(leaf->move1, depth);
-    create_tree(leaf->move2, depth);
-    
-}
-
-// Destroy random node children of a move node
-void destroy_rand_node_children(struct move_node *child){
-    free(child->move1);
-    free(child->move2);
-}
-
 
 // Destroy the tree
 void destroy_tree(struct rand_node *root){
     
     if (root->left != 0) {
         
-        // Keep going down the tree if empty
-        destroy_tree_next_level(root->left);
+        // Keep going down the tree if not empty
+        for (int ind = 0; ind<root->left->num_moves; ind++) {
+            destroy_tree(root->left->moves[ind]);
+        }
         
         // Destroy random nodes
-        destroy_rand_node_children(root->left);
+        for (int ind=0; ind<root->left->num_moves; ind++) {
+            free(root->left->moves[ind]);
+        }
+        free(root->left->moves);
         
         // destroy move nodes and root
         free(root->left);
     }
     if (root->right != 0) {
         
-        // Keep going down the tree if empty
-        destroy_tree_next_level(root->right);
+        // Keep going down the tree if not empty
+        for (int ind = 0; ind<root->right->num_moves; ind++) {
+            destroy_tree(root->right->moves[ind]);
+        }
         
         // Destroy random nodes
-        destroy_rand_node_children(root->right);
+        for (int ind=0; ind<root->right->num_moves; ind++) {
+            free(root->right->moves[ind]);
+        }
+        free(root->right->moves);
         
         // destroy move nodes and root
         free(root->right);
@@ -123,28 +150,256 @@ void destroy_tree(struct rand_node *root){
     if (root->up != 0) {
         
         // Keep going down the tree if empty
-        destroy_tree_next_level(root->up);
+        for (int ind = 0; ind<root->up->num_moves; ind++) {
+            destroy_tree(root->up->moves[ind]);
+        }
         
         // Destroy random nodes
-        destroy_rand_node_children(root->up);
+        for (int ind=0; ind<root->up->num_moves; ind++) {
+            free(root->up->moves[ind]);
+        }
+        free(root->up->moves);
         
         // destroy move nodes and root
         free(root->up);
     }
-    if (root->left != 0) {
+    if (root->down != 0) {
         
         // Keep going down the tree if empty
-        destroy_tree_next_level(root->down);
+        for (int ind = 0; ind<root->down->num_moves; ind++) {
+            destroy_tree(root->down->moves[ind]);
+        }
         
         // Destroy random nodes
-        destroy_rand_node_children(root->down);
+        for (int ind=0; ind<root->down->num_moves; ind++) {
+            free(root->down->moves[ind]);
+        }
+        free(root->down->moves);
         
         // destroy move nodes and root
         free(root->down);
     }
 }
 
-void destroy_tree_next_level(struct move_node *leaf){
-    destroy_tree(leaf->move1);
-    destroy_tree(leaf->move2);
+// ========================================================================================
+//          Game Board Manipulation
+// ========================================================================================
+
+void print_game_board(uint8_t *game_board){
+    for (int ind = 0; ind < 4; ind++) {
+        printf("%d\t%d\t%d\t%d\n",game_board[0+4*ind],game_board[1+4*ind],game_board[2+4*ind]
+               ,game_board[3+4*ind]);
+    }
 }
+
+// ========================================================================================
+// Move Right
+uint8_t *move_right(uint8_t *game_board){
+    
+    // Allocate the new board and copy the old board into it
+    uint8_t *move_board = malloc(16*sizeof(uint8_t));
+    for (int ind = 0; ind<16; ind++) {
+        move_board[ind] = game_board[ind];
+    }
+    
+    for (int repeat = 0; repeat < 3; repeat++) {
+        // Shift out zeros
+        for (int offset = 0; offset<13; offset +=4) {
+            for (int ind = 3; ind >0; ind--) {
+                
+                // If The current value is zero
+                if (move_board[ind+offset] == 0) {
+                    // shift value
+                    move_board[ind+offset] = move_board[ind+offset-1];
+                    move_board[ind-1+offset] = 0;
+                }
+            }
+        }
+    }
+    
+    // Combine like blocks and shift
+    for (int offset = 0; offset<13; offset +=4) {
+        for (int ind = 3; ind >0; ind--) {
+            
+            // if the two adjecent values are equal
+            if (move_board[ind+offset] == move_board[ind-1+offset] && move_board[ind+offset]>0) {
+                move_board[ind+offset] = move_board[ind+offset] + 1;
+                move_board[ind-1+offset] = 0;
+            }
+        }
+    }
+
+    // Shift out zeros
+    for (int offset = 0; offset<13; offset +=4) {
+        for (int ind = 3; ind >0; ind--) {
+            
+            // If The current value is zero
+            if (move_board[ind+offset] == 0) {
+                // shift value
+                move_board[ind+offset] = move_board[ind+offset-1];
+                move_board[ind-1+offset] = 0;
+            }
+        }
+    }
+    
+    return move_board;
+}
+
+// ========================================================================================
+// Move the Game Board left
+uint8_t *move_left(uint8_t *game_board){
+    
+    uint8_t *move_board = malloc(16*sizeof(uint8_t));
+    for (int ind = 0; ind<16; ind++) {
+        move_board[ind] = game_board[ind];
+    }
+    
+    // Shift out zeros
+    for (int repeat = 0; repeat<3; repeat++) {
+        for (int offset = 0; offset<13; offset +=4) {
+            for (int ind = 0; ind < 3; ind++) {
+                
+                // If The current value is zero
+                if (move_board[ind+offset] == 0) {
+                    // shift value
+                    move_board[ind+offset] = move_board[ind+offset+1];
+                    move_board[ind+1+offset] = 0;
+                }
+            }
+        }
+    }
+    
+    // Combine like blocks and shift
+    for (int offset = 0; offset<13; offset +=4) {
+        for (int ind = 0; ind < 3; ind++) {
+            
+            // if the two adjecent values are equal
+            if (move_board[ind+offset] == move_board[ind+1+offset] && move_board[ind+offset]>0) {
+                move_board[ind+offset] +=1;
+                move_board[ind+1+offset] = 0;
+            }
+        }
+    }
+    
+    // Shift out zeros
+    for (int offset = 0; offset<13; offset +=4) {
+        for (int ind = 0; ind < 3; ind++) {
+            
+            // If The current value is zero
+            if (move_board[ind+offset] == 0) {
+                
+                // shift value
+                move_board[ind+offset] = move_board[ind+offset+1];
+                move_board[ind+1+offset] = 0;
+            }
+        }
+    }
+    return move_board;
+}
+
+// ========================================================================================
+// Move the Game Board up
+uint8_t *move_up(uint8_t *game_board){
+    
+    uint8_t *move_board = malloc(16*sizeof(uint8_t));
+    for (int ind = 0; ind<16; ind++) {
+        move_board[ind] = game_board[ind];
+    }
+    
+    // Shift out zeros
+    for (int repeat = 0; repeat<4; repeat++) {
+        for (int offset = 0; offset<4; offset ++) {
+            for (int ind = 0; ind < 12; ind+=4) {
+                
+                // If The current value is zero
+                if (move_board[ind+offset] == 0) {
+                    // shift value
+                    move_board[ind+offset] = move_board[ind+offset+4];
+                    move_board[ind+4+offset] = 0;
+                }
+            }
+        }
+    }
+    
+    // Combine like blocks and shift
+    for (int offset = 0; offset<4; offset ++) {
+        for (int ind = 0; ind < 12; ind+=4) {
+            
+            // if the two adjecent values are equal
+            if (move_board[ind+offset] == move_board[ind+4+offset] && move_board[ind+offset]>0) {
+                move_board[ind+offset] +=1;
+                move_board[ind+4+offset] = 0;
+            }
+        }
+    }
+
+    // Shift out zeros
+    for (int repeat = 0; repeat<2; repeat++) {
+        for (int offset = 0; offset<4; offset ++) {
+            for (int ind = 0; ind < 12; ind+=4) {
+                
+                // If The current value is zero
+                if (move_board[ind+offset] == 0) {
+                    // shift value
+                    move_board[ind+offset] = move_board[ind+offset+4];
+                    move_board[ind+4+offset] = 0;
+                }
+            }
+        }
+    }
+    return move_board;
+}
+
+// ========================================================================================
+// Move the Game Board up
+uint8_t *move_down(uint8_t *game_board){
+    
+    uint8_t *move_board = malloc(16*sizeof(uint8_t));
+    for (int ind = 0; ind<16; ind++) {
+        move_board[ind] = game_board[ind];
+    }
+    
+    // Shift out zeros
+    for (int repeat = 0; repeat<4; repeat++) {
+        for (int offset = 0; offset<4; offset ++) {
+            for (int ind = 12; ind > 3 ; ind-=4) {
+                
+                // If The current value is zero
+                if (move_board[ind+offset] == 0) {
+                    // shift value
+                    move_board[ind+offset] = move_board[ind+offset-4];
+                    move_board[ind-4+offset] = 0;
+                }
+            }
+        }
+    }
+    
+    // Combine like blocks and shift
+    for (int offset = 0; offset<4; offset ++) {
+        for (int ind = 12; ind > 3 ; ind-=4) {
+            
+            // if the two adjecent values are equal
+            if (move_board[ind+offset] == move_board[ind-4+offset] && move_board[ind+offset]>0) {
+                move_board[ind+offset] +=1;
+                move_board[ind-4+offset] = 0;
+            }
+        }
+    }
+    
+    // Shift out zeros
+    for (int repeat = 0; repeat<2; repeat++) {
+        for (int offset = 0; offset<4; offset ++) {
+            for (int ind = 12; ind > 3 ; ind-=4) {
+                
+                // If The current value is zero
+                if (move_board[ind+offset] == 0) {
+                    // shift value
+                    move_board[ind+offset] = move_board[ind+offset-4];
+                    move_board[ind-4+offset] = 0;
+                }
+            }
+        }
+    }
+    return move_board;
+}
+
