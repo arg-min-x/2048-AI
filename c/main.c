@@ -11,76 +11,102 @@
 #include <stdlib.h>
 #include "lib2048.h"
 
-int main(int argc, const char * argv[]) {
-
-    uint8_t game_board_orig[16] = { 2, 5, 5, 6,
-                                    2, 2, 0, 2,
-                                    2, 0, 0, 2,
-                                    2, 2, 2, 3};
-    
-    uint8_t *game_board = malloc(16*sizeof(uint8_t));
-    uint8_t *right_board;
-    uint8_t *left_board;
-    uint8_t *up_board;
-    uint8_t *down_board;
-    
-    for (int ind = 0; ind<16; ind++) {
-        game_board[ind] = game_board_orig[ind];
-    }
-    
-    for (int ind = 0; ind<500000; ind++) {
-        // Move right and print
+//int main(int argc, const char * argv[]) {
+//
+//    uint8_t game_board_orig[16] = { 2, 5, 5, 6,
+//                                    2, 2, 0, 2,
+//                                    2, 0, 0, 2,
+//                                    2, 2, 2, 3};
+//    
+//    uint8_t *game_board = malloc(16*sizeof(uint8_t));
+//    uint8_t *right_board;
+//    uint8_t *left_board;
+//    uint8_t *up_board;
+//    uint8_t *down_board;
+//    uint8_t zero_count = 0;
+//    
+//    for (int ind = 0; ind<16; ind++) {
+//        game_board[ind] = game_board_orig[ind];
+//    }
+//    
+//    for (int ind = 0; ind<1; ind++) {
+//        // Move right and print
 //        printf("moving right\n");
 //        print_game_board(game_board);
 //        printf("\n\n");
-        
-        right_board = move_right(game_board);
+//        
+////        zero_count = count_zeros(game_board);
+////        printf("zero count =\%d\n",zero_count);
+//        
+//        right_board = move_right(game_board);
 //        print_game_board(right_board);
 //        printf("\n\n");
-        
-        // Move left and print
+//        
+////        zero_count = count_zeros(right_board);
+////        printf("zero count =\%d\n",zero_count);
+//        
+//        // Move left and print
 //        printf("moving left\n");
 //        print_game_board(game_board);
 //        printf("\n\n");
-        
-        left_board = move_left(game_board);
+//        
+//        left_board = move_left(game_board);
 //        print_game_board(left_board);
 //        printf("\n\n");
-        
-        // Move up and print
+//        
+//        // Move up and print
 //        printf("moving up\n");
 //        print_game_board(game_board);
 //        printf("\n\n");
-        
-        up_board = move_up(game_board);
+//        
+//        up_board = move_up(game_board);
 //        print_game_board(up_board);
 //        printf("\n\n");
+//        
+//        // Move down and print
+//        // Move up and print
+////        printf("moving down\n");
+////        print_game_board(game_board);
+////        printf("\n\n");
+//        
+//        down_board = move_down(game_board);
+////        print_game_board(down_board);
+////        printf("\n\n");
+//        free(right_board);
+//        free(left_board);
+//        free(up_board);
+//        free(down_board);
+//    }
+
+
+//    // Free Memory
+//    free(game_board);
+//
+//    return 0;
+//}
+
+// Test the tree creation and deletion
+int main(int argc, const char * argv[]) {
+    
+    for (int ind = 0; ind<1; ind++) {
+        // Allocate
+        struct rand_node *root;
+        root = malloc(sizeof(rand_node));
         
-        // Move down and print
-        // Move up and print
-//        printf("moving down\n");
-//        print_game_board(game_board);
-//        printf("\n\n");
+        // Create tree
+        create_tree(root,1);
         
-        down_board = move_down(game_board);
-//        print_game_board(down_board);
-//        printf("\n\n");
+        //Destory Tree
+        destroy_tree(root);
+        free(root);
     }
-
-
-    // Free Memory
-    free(game_board);
-    free(right_board);
-    free(left_board);
-    free(up_board);
-    free(down_board);
+    
     return 0;
 }
 
-// Test the tree creation and deletion
+//// Test the tree creation and deletion
 //int main(int argc, const char * argv[]) {
 //    
-//    printf("blah");
 //    for (int ind = 0; ind<1; ind++) {
 //        // Allocate
 //        struct rand_node *root;
@@ -88,14 +114,11 @@ int main(int argc, const char * argv[]) {
 //        
 //        // Create tree
 //        create_tree(root,1);
-//        printf("blah");
 //        
 //        //Destory Tree
 //        destroy_tree(root);
 //        free(root);
 //    }
-//    
-//    printf("blah");
 //    
 //    return 0;
 //}

@@ -60,6 +60,7 @@ uint8_t *move_up(uint8_t *game_board);
 // Move the game board down and return pointer to the new board
 uint8_t *move_down(uint8_t *game_board);
 
-
+// Count the number of zeros on the board
+uint8_t count_zeros(uint8_t *game_board);
 
 #endif /* lib2048_h */

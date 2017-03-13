@@ -351,7 +351,7 @@ uint8_t *move_up(uint8_t *game_board){
 }
 
 // ========================================================================================
-// Move the Game Board up
+// Move the Game Board down
 uint8_t *move_down(uint8_t *game_board){
     
     uint8_t *move_board = malloc(16*sizeof(uint8_t));
@@ -403,3 +403,15 @@ uint8_t *move_down(uint8_t *game_board){
     return move_board;
 }
 
+// ========================================================================================
+// Count the number of zeros on the board
+uint8_t count_zeros(uint8_t *game_board){
+    uint8_t zero_count = 0;
+    
+    for (int ind =0; ind<16; ind++) {
+        if (game_board[ind]==0) {
+            zero_count++;
+        }
+    }
+    return zero_count;
+}
