@@ -19,14 +19,14 @@
 // Node with random board states as children
 typedef struct move_node {
     struct rand_node **moves;
-    uint8_t game_board[16];
+    uint8_t *game_board;
     uint8_t num_moves;
 }move_node;
 
 // Node with left up right down children
 typedef struct rand_node {
     struct move_node *left, *right, *up, *down;
-    uint8_t game_board[16];
+    uint8_t *game_board;
 }rand_node;
 
 // Set LRUD struct pointers to null

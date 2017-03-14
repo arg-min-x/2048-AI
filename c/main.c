@@ -88,13 +88,36 @@
 // Test the tree creation and deletion
 int main(int argc, const char * argv[]) {
     
+    uint8_t game_board_orig[16] = { 2, 5, 5, 6,
+                                    2, 2, 0, 2,
+                                    2, 0, 0, 2,
+                                    2, 2, 2, 3};
+
+    
     for (int ind = 0; ind<1; ind++) {
         // Allocate
         struct rand_node *root;
         root = malloc(sizeof(rand_node));
         
+        root->game_board = &game_board_orig[0];
+        
+        printf("root game board\n");
+        print_game_board(root->game_board);
+        
         // Create tree
-        create_tree(root,1);
+        create_tree(root,4);
+        
+//        printf("left game board\n");
+//        print_game_board(root->left->game_board);
+//
+//        printf("right game board\n");
+//        print_game_board(root->right->game_board);
+//        
+//        printf("up game board\n");
+//        print_game_board(root->up->game_board);
+//        
+//        printf("down game board\n");
+//        print_game_board(root->down->game_board);
         
         //Destory Tree
         destroy_tree(root);
@@ -113,7 +136,7 @@ int main(int argc, const char * argv[]) {
 //        root = malloc(sizeof(rand_node));
 //        
 //        // Create tree
-//        create_tree(root,1);
+//        create_tree(root,2);
 //        
 //        //Destory Tree
 //        destroy_tree(root);

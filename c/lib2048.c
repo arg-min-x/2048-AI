@@ -17,6 +17,7 @@ void set_move_node_null(struct rand_node *leaf){
     leaf->right = NULL;
     leaf->up = NULL;
     leaf->down = NULL;
+    leaf->game_board = NULL;
 }
 
 void create_children_move_node(struct move_node *leaf){
@@ -59,15 +60,23 @@ void create_tree(struct rand_node *root, int depth){
         root->up->num_moves = number_moves;
         root->down->num_moves = number_moves;
         
+        // Asign child move boards
+        root->left->game_board = move_left(root->game_board);
+        root->right->game_board = move_right(root->game_board);
+        root->up->game_board = move_up(root->game_board);
+        root->down->game_board = move_down(root->game_board);
+        
         // Construct child nodes
         create_children_move_node(left);
         create_children_move_node(right);
         create_children_move_node(up);
         create_children_move_node(down);
+
         
     }else if (depth >1) {
         
         // Alocate the child nodes
+        // I think I can skip this step!!!
         struct move_node *left, *right, *up, *down;
         left = malloc(sizeof(move_node));
         right = malloc(sizeof(move_node));
@@ -86,11 +95,35 @@ void create_tree(struct rand_node *root, int depth){
         root->up->num_moves = number_moves;
         root->down->num_moves = number_moves;
         
+        // Asign child move boards
+        root->left->game_board = move_left(root->game_board);
+        root->right->game_board = move_right(root->game_board);
+        root->up->game_board = move_up(root->game_board);
+        root->down->game_board = move_down(root->game_board);
+        
         // Construct child nodes
         create_children_move_node(left);
         create_children_move_node(right);
         create_children_move_node(up);
         create_children_move_node(down);
+        
+        // Asign random move boards
+        // Need to implement the random move boards
+        for (int ind = 0; ind < root->left->num_moves; ind++) {
+            root->left->moves[ind]->game_board = move_left(root->game_board);
+        }
+        
+        for (int ind = 0; ind < root->right->num_moves; ind++) {
+            root->right->moves[ind]->game_board = move_left(root->game_board);
+        }
+        
+        for (int ind = 0; ind < root->up->num_moves; ind++) {
+            root->up->moves[ind]->game_board = move_left(root->game_board);
+        }
+        
+        for (int ind = 0; ind < root->down->num_moves; ind++) {
+            root->down->moves[ind]->game_board = move_left(root->game_board);
+        }
         
         // Call Constructor on the next level
         for (int ind = 0; ind < root->left->num_moves; ind++) {
@@ -126,6 +159,14 @@ void destroy_tree(struct rand_node *root){
         for (int ind=0; ind<root->left->num_moves; ind++) {
             free(root->left->moves[ind]);
         }
+        free(root->left->game_board);
+        
+        if (root->left->moves[1]->game_board !=0) {
+            for (int ind = 0; ind < root->left->num_moves; ind++) {
+                free(root->left->moves[ind]->game_board);
+            }
+        }
+
         free(root->left->moves);
         
         // destroy move nodes and root
@@ -142,7 +183,13 @@ void destroy_tree(struct rand_node *root){
         for (int ind=0; ind<root->right->num_moves; ind++) {
             free(root->right->moves[ind]);
         }
+        if (root->right->moves[1]->game_board !=0) {
+            for (int ind = 0; ind < root->right->num_moves; ind++) {
+                free(root->right->moves[ind]->game_board);
+            }
+        }
         free(root->right->moves);
+        free(root->right->game_board);
         
         // destroy move nodes and root
         free(root->right);
@@ -158,7 +205,13 @@ void destroy_tree(struct rand_node *root){
         for (int ind=0; ind<root->up->num_moves; ind++) {
             free(root->up->moves[ind]);
         }
+        if (root->up->moves[1]->game_board !=0) {
+            for (int ind = 0; ind < root->up->num_moves; ind++) {
+                free(root->up->moves[ind]->game_board);
+            }
+        }
         free(root->up->moves);
+        free(root->up->game_board);
         
         // destroy move nodes and root
         free(root->up);
@@ -174,7 +227,13 @@ void destroy_tree(struct rand_node *root){
         for (int ind=0; ind<root->down->num_moves; ind++) {
             free(root->down->moves[ind]);
         }
+        if (root->down->moves[1]->game_board !=0) {
+            for (int ind = 0; ind < root->down->num_moves; ind++) {
+                free(root->down->moves[ind]->game_board);
+            }
+        }
         free(root->down->moves);
+        free(root->down->game_board);
         
         // destroy move nodes and root
         free(root->down);
