@@ -88,10 +88,15 @@
 // Test the tree creation and deletion
 int main(int argc, const char * argv[]) {
     
-    uint8_t game_board_orig[16] = { 2, 5, 5, 6,
-                                    2, 2, 0, 2,
-                                    2, 0, 0, 2,
-                                    2, 2, 2, 3};
+//    uint8_t game_board_orig[16] = { 2, 5, 5, 6,
+//                                    1, 2, 0, 2,
+//                                    2, 4, 2, 8,
+//                                    2, 6, 2, 3};
+    
+    uint8_t game_board_orig[16] = { 2, 2, 0, 0,
+                                    0, 0, 0, 0,
+                                    0, 0, 0, 0,
+                                    0, 0, 0, 0};
 
     
     for (int ind = 0; ind<1; ind++) {
@@ -105,19 +110,23 @@ int main(int argc, const char * argv[]) {
         print_game_board(root->game_board);
         
         // Create tree
-        create_tree(root,4);
+        create_tree(root,1);
         
-//        printf("left game board\n");
-//        print_game_board(root->left->game_board);
-//
-//        printf("right game board\n");
-//        print_game_board(root->right->game_board);
-//        
-//        printf("up game board\n");
-//        print_game_board(root->up->game_board);
-//        
-//        printf("down game board\n");
-//        print_game_board(root->down->game_board);
+        printf("left game board\n");
+        print_game_board(root->left->game_board);
+        printf("number of random moves = %d\n",root->left->num_moves);
+
+        printf("right game board\n");
+        print_game_board(root->right->game_board);
+        printf("number of random moves = %d\n",root->right->num_moves);
+        
+        printf("up game board\n");
+        print_game_board(root->up->game_board);
+        printf("number of random moves = %d\n",root->up->num_moves);
+        
+        printf("down game board\n");
+        print_game_board(root->down->game_board);
+        printf("number of random moves = %d\n",root->down->num_moves);
         
         //Destory Tree
         destroy_tree(root);

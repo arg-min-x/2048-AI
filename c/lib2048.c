@@ -37,76 +37,43 @@ void create_children_move_node(struct move_node *leaf){
 // Create The tree
 void create_tree(struct rand_node *root, int depth){
     
-    int number_moves = 14;
+    int number_moves = 10;
     
     // If at the end of a tree
-    if (depth == 1) {
-        // Alocate the child nodes
-        struct move_node *left, *right, *up, *down;
-        left = malloc(sizeof(move_node));
-        right = malloc(sizeof(move_node));
-        up = malloc(sizeof(move_node));
-        down = malloc(sizeof(move_node));
-        
-        // Asign child nodes
-        root->left = left;
-        root->right = right;
-        root->up = up;
-        root->down = down;
-        
-        // Set the number of moves
-        root->left->num_moves = number_moves;
-        root->right->num_moves = number_moves;
-        root->up->num_moves = number_moves;
-        root->down->num_moves = number_moves;
-        
-        // Asign child move boards
-        root->left->game_board = move_left(root->game_board);
-        root->right->game_board = move_right(root->game_board);
-        root->up->game_board = move_up(root->game_board);
-        root->down->game_board = move_down(root->game_board);
-        
-        // Construct child nodes
-        create_children_move_node(left);
-        create_children_move_node(right);
-        create_children_move_node(up);
-        create_children_move_node(down);
+    // Alocate the child nodes
+    struct move_node *left, *right, *up, *down;
+    left = malloc(sizeof(move_node));
+    right = malloc(sizeof(move_node));
+    up = malloc(sizeof(move_node));
+    down = malloc(sizeof(move_node));
+    
+    // Asign child nodes
+    root->left = left;
+    root->right = right;
+    root->up = up;
+    root->down = down;
+    
+    // Asign child move boards
+    root->left->game_board = move_left(root->game_board);
+    root->right->game_board = move_right(root->game_board);
+    root->up->game_board = move_up(root->game_board);
+    root->down->game_board = move_down(root->game_board);
+    
+    // Set the number of moves
+    root->left->num_moves = count_zeros(root->left->game_board);
+    root->right->num_moves = count_zeros(root->right->game_board);
+    root->up->num_moves = count_zeros(root->up->game_board);
+    root->down->num_moves = count_zeros(root->down->game_board);
+    
+    // Construct child nodes
+    create_children_move_node(left);
+    create_children_move_node(right);
+    create_children_move_node(up);
+    create_children_move_node(down);
 
         
-    }else if (depth >1) {
-        
-        // Alocate the child nodes
-        // I think I can skip this step!!!
-        struct move_node *left, *right, *up, *down;
-        left = malloc(sizeof(move_node));
-        right = malloc(sizeof(move_node));
-        up = malloc(sizeof(move_node));
-        down = malloc(sizeof(move_node));
-        
-        // Asign child nodes
-        root->left = left;
-        root->right = right;
-        root->up = up;
-        root->down = down;
-        
-        // Set the number of moves
-        root->left->num_moves = number_moves;
-        root->right->num_moves = number_moves;
-        root->up->num_moves = number_moves;
-        root->down->num_moves = number_moves;
-        
-        // Asign child move boards
-        root->left->game_board = move_left(root->game_board);
-        root->right->game_board = move_right(root->game_board);
-        root->up->game_board = move_up(root->game_board);
-        root->down->game_board = move_down(root->game_board);
-        
-        // Construct child nodes
-        create_children_move_node(left);
-        create_children_move_node(right);
-        create_children_move_node(up);
-        create_children_move_node(down);
-        
+    if (depth >1) {
+
         // Asign random move boards
         // Need to implement the random move boards
         for (int ind = 0; ind < root->left->num_moves; ind++) {
