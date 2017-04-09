@@ -37,8 +37,6 @@ void create_children_move_node(struct move_node *leaf){
 // Create The tree
 void create_tree(struct rand_node *root, int depth){
     
-    int number_moves = 10;
-    
     // If at the end of a tree
     // Alocate the child nodes
     struct move_node *left, *right, *up, *down;
@@ -60,10 +58,10 @@ void create_tree(struct rand_node *root, int depth){
     root->down->game_board = move_down(root->game_board);
     
     // Set the number of moves
-    root->left->num_moves = count_zeros(root->left->game_board);
-    root->right->num_moves = count_zeros(root->right->game_board);
-    root->up->num_moves = count_zeros(root->up->game_board);
-    root->down->num_moves = count_zeros(root->down->game_board);
+    root->left->num_moves = 2*count_zeros(root->left->game_board);
+    root->right->num_moves = 2*count_zeros(root->right->game_board);
+    root->up->num_moves = 2*count_zeros(root->up->game_board);
+    root->down->num_moves = 2*count_zeros(root->down->game_board);
     
     // Construct child nodes
     create_children_move_node(left);
@@ -75,22 +73,78 @@ void create_tree(struct rand_node *root, int depth){
     if (depth >1) {
 
         // Asign random move boards
-        // Need to implement the random move boards
-        for (int ind = 0; ind < root->left->num_moves; ind++) {
-            root->left->moves[ind]->game_board = move_left(root->game_board);
+        
+        // create random board for right node
+        int last_ind = 0;
+        uint8_t rand_val = 1;
+//        printf("\n");
+//        printf("start random boards\n");
+//        print_game_board(root->left->game_board);
+//        printf("\n");
+        for (int ind = 0; ind < root->left->num_moves/2; ind++) {
+            root->left->moves[ind]->game_board = create_random_board(root->left->game_board,&last_ind,rand_val);
+//            print_game_board(root->left->moves[ind]->game_board);
+//            printf("\n");
+        }
+        last_ind = 0;
+        rand_val = 2;
+//        printf("\n");
+//        printf("start random boards\n");
+//        print_game_board(root->left->game_board);
+//        printf("\n");
+        for (int ind = root->left->num_moves/2; ind < root->left->num_moves; ind++) {
+            root->left->moves[ind]->game_board = create_random_board(root->left->game_board,&last_ind,rand_val);
+//            print_game_board(root->left->moves[ind]->game_board);
+//            printf("\n");
         }
         
-        for (int ind = 0; ind < root->right->num_moves; ind++) {
-            root->right->moves[ind]->game_board = move_left(root->game_board);
+        // create random board for right node
+        last_ind = 0;
+        rand_val = 1;
+        for (int ind = 0; ind < root->right->num_moves/2; ind++) {
+            root->right->moves[ind]->game_board = create_random_board(root->right->game_board,&last_ind,rand_val);
+        }
+        last_ind = 0;
+        rand_val = 2;
+        for (int ind = root->right->num_moves/2; ind < root->right->num_moves; ind++) {
+            root->right->moves[ind]->game_board = create_random_board(root->right->game_board,&last_ind,rand_val);
         }
         
-        for (int ind = 0; ind < root->up->num_moves; ind++) {
-            root->up->moves[ind]->game_board = move_left(root->game_board);
+        // create random board for up node
+        last_ind = 0;
+        rand_val = 1;
+        for (int ind = 0; ind < root->up->num_moves/2; ind++) {
+            root->up->moves[ind]->game_board = create_random_board(root->up->game_board,&last_ind,rand_val);
+        }
+        last_ind = 0;
+        rand_val = 2;
+        for (int ind = root->up->num_moves/2; ind < root->up->num_moves; ind++) {
+            root->up->moves[ind]->game_board = create_random_board(root->up->game_board,&last_ind,rand_val);
         }
         
-        for (int ind = 0; ind < root->down->num_moves; ind++) {
-            root->down->moves[ind]->game_board = move_left(root->game_board);
+        // create random board for down node
+        last_ind = 0;
+        rand_val = 1;
+        for (int ind = 0; ind < root->down->num_moves/2; ind++) {
+            root->down->moves[ind]->game_board = create_random_board(root->down->game_board,&last_ind,rand_val);
         }
+        last_ind = 0;
+        rand_val = 2;
+        for (int ind = root->down->num_moves/2; ind < root->down->num_moves; ind++) {
+            root->down->moves[ind]->game_board = create_random_board(root->down->game_board,&last_ind,rand_val);
+        }
+        
+//        for (int ind = 0; ind < root->right->num_moves; ind++) {
+//            root->right->moves[ind]->game_board = move_left(root->game_board);
+//        }
+//        
+//        for (int ind = 0; ind < root->up->num_moves; ind++) {
+//            root->up->moves[ind]->game_board = move_left(root->game_board);
+//        }
+//        
+//        for (int ind = 0; ind < root->down->num_moves; ind++) {
+//            root->down->moves[ind]->game_board = move_left(root->game_board);
+//        }
         
         // Call Constructor on the next level
         for (int ind = 0; ind < root->left->num_moves; ind++) {
@@ -440,4 +494,23 @@ uint8_t count_zeros(uint8_t *game_board){
         }
     }
     return zero_count;
+}
+
+// ========================================================================================
+// Count the number of zeros on the board
+uint8_t *create_random_board(uint8_t *game_board, int *last_zero_ind, uint8_t rand_value){
+    int ind;
+    uint8_t *rand_board = malloc(16*sizeof(uint8_t));
+    for (int ind = 0; ind<16; ind++) {
+        rand_board[ind] = game_board[ind];
+    }
+    
+    for (ind = *last_zero_ind; ind<16; ind++) {
+        if (rand_board[ind]==0) {
+            rand_board[ind] = rand_value;
+            break;
+        }
+    }
+    *last_zero_ind = ind+1;
+    return rand_board;
 }

@@ -88,15 +88,15 @@
 // Test the tree creation and deletion
 int main(int argc, const char * argv[]) {
     
-//    uint8_t game_board_orig[16] = { 2, 5, 5, 6,
-//                                    1, 2, 0, 2,
-//                                    2, 4, 2, 8,
-//                                    2, 6, 2, 3};
+    uint8_t game_board_orig[16] = { 2, 5, 5, 6,
+                                    1, 2, 0, 2,
+                                    2, 4, 2, 8,
+                                    2, 6, 2, 3};
     
-    uint8_t game_board_orig[16] = { 2, 2, 0, 0,
-                                    0, 0, 0, 0,
-                                    0, 0, 0, 0,
-                                    0, 0, 0, 0};
+//    uint8_t game_board_orig[16] = { 2, 2, 0, 0,
+//                                    0, 0, 0, 0,
+//                                    0, 0, 0, 0,
+//                                    0, 0, 0, 0};
 
     
     for (int ind = 0; ind<1; ind++) {
@@ -110,7 +110,7 @@ int main(int argc, const char * argv[]) {
         print_game_board(root->game_board);
         
         // Create tree
-        create_tree(root,1);
+        create_tree(root,3);
         
         printf("left game board\n");
         print_game_board(root->left->game_board);
