@@ -27,6 +27,7 @@ typedef struct move_node {
 typedef struct rand_node {
     struct move_node *left, *right, *up, *down;
     uint8_t *game_board;
+    float cost;
 }rand_node;
 
 // Set LRUD struct pointers to null
@@ -40,6 +41,12 @@ void create_tree_next_level(struct move_node *leaf,int depth);
 
 // Destroy the tree
 void destroy_tree(struct rand_node *root);
+
+// Evalutate Cost function for a leaf
+float eval_cost(uint8_t *game_board);
+    
+// Eval next move
+void eval_next_move(struct rand_node *root);
 
 // ========================================================================================
 //          Game Board Manipulation

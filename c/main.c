@@ -85,49 +85,80 @@
 //    return 0;
 //}
 
+//// Test the tree creation and deletion
+//int main(int argc, const char * argv[]) {
+//    
+//    uint8_t game_board_orig[16] = { 2, 2, 0, 8,
+//        8, 0, 1, 0,
+//        0, 3, 0, 4,
+//        5, 0, 3, 1};
+////    float cost = 0;
+//
+//    // Allocate
+//    struct rand_node *root;
+//    root = malloc(sizeof(rand_node));
+//    root->game_board = &game_board_orig[0];
+//    create_tree(root,4);
+//    
+//    printf("%lu",sizeof(rand_node));
+//    
+//    //Destory Tree
+//    destroy_tree(root);
+//    free(root);
+//    
+//    return 0;
+//}
+
+
 // Test the tree creation and deletion
 int main(int argc, const char * argv[]) {
     
-    uint8_t game_board_orig[16] = { 2, 5, 5, 6,
-                                    1, 2, 0, 2,
-                                    2, 4, 2, 8,
-                                    2, 6, 2, 3};
+//    uint8_t game_board_orig[16] = { 2, 5, 5, 6,
+//                                    1, 2, 0, 2,
+//                                    2, 4, 2, 8,
+//                                    2, 6, 2, 3};
     
-//    uint8_t game_board_orig[16] = { 2, 2, 0, 0,
-//                                    0, 0, 0, 0,
-//                                    0, 0, 0, 0,
-//                                    0, 0, 0, 0};
-
+    uint8_t game_board_orig[16] = { 2, 3, 4, 8,
+                                    0, 5, 0, 7,
+                                    4, 3, 2, 1,
+                                    5, 7, 0, 0};
+    float cost = 0;
+//    printf("%lu\n",sizeof(float));
+//    printf("%lu\n",sizeof(double));
+//    printf("%lu\n",sizeof(long double));
+//    printf("\n%lu\n",sizeof(rand_node));
+//    printf("\n%lu\n",sizeof(move_node));
     
     for (int ind = 0; ind<1; ind++) {
         // Allocate
         struct rand_node *root;
         root = malloc(sizeof(rand_node));
-        
         root->game_board = &game_board_orig[0];
         
-        printf("root game board\n");
-        print_game_board(root->game_board);
+//        printf("root game board\n");
+//        print_game_board(root->game_board);
         
         // Create tree
-        create_tree(root,3);
+        create_tree(root,4);
         
-        printf("left game board\n");
-        print_game_board(root->left->game_board);
-        printf("number of random moves = %d\n",root->left->num_moves);
-
-        printf("right game board\n");
-        print_game_board(root->right->game_board);
-        printf("number of random moves = %d\n",root->right->num_moves);
+//        printf("left game board\n");
+//        print_game_board(root->left->game_board);
+//        printf("number of random moves = %d\n",root->left->num_moves);
+//
+//        printf("right game board\n");
+//        print_game_board(root->right->game_board);
+//        printf("number of random moves = %d\n",root->right->num_moves);
+//        
+//        printf("up game board\n");
+//        print_game_board(root->up->game_board);
+//        printf("number of random moves = %d\n",root->up->num_moves);
+//        
+//        printf("down game board\n");
+//        print_game_board(root->down->game_board);
+//        printf("number of random moves = %d\n",root->down->num_moves);
         
-        printf("up game board\n");
-        print_game_board(root->up->game_board);
-        printf("number of random moves = %d\n",root->up->num_moves);
-        
-        printf("down game board\n");
-        print_game_board(root->down->game_board);
-        printf("number of random moves = %d\n",root->down->num_moves);
-        
+        eval_next_move(root);
+        printf("cost = %f",cost);
         //Destory Tree
         destroy_tree(root);
         free(root);
