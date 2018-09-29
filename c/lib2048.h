@@ -48,6 +48,9 @@ float eval_cost(uint8_t *game_board);
 // Eval next move
 void eval_next_move(struct rand_node *root);
 
+// Eval next move
+char eval_next_move_root(struct rand_node *root);
+
 // ========================================================================================
 //          Game Board Manipulation
 // ========================================================================================
@@ -72,5 +75,6 @@ uint8_t count_zeros(uint8_t *game_board);
 
 // Create a board with two or four added at a zero locations
 uint8_t *create_random_board(uint8_t *game_board, int *last_zero_ind, uint8_t rand_value);
+
 
 #endif /* lib2048_h */

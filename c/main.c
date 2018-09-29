@@ -113,15 +113,15 @@
 // Test the tree creation and deletion
 int main(int argc, const char * argv[]) {
     
-//    uint8_t game_board_orig[16] = { 2, 5, 5, 6,
-//                                    1, 2, 0, 2,
-//                                    2, 4, 2, 8,
-//                                    2, 6, 2, 3};
+    uint8_t game_board_orig[16] = { 2, 2, 0, 0,
+                                    3, 3, 0, 0,
+                                    1, 1, 0, 4,
+                                    2, 2, 3, 0};
     
-    uint8_t game_board_orig[16] = { 2, 3, 4, 8,
-                                    0, 5, 0, 7,
-                                    4, 3, 2, 1,
-                                    5, 7, 0, 0};
+//    uint8_t game_board_orig[16] = { 2, 3, 4, 8,
+//                                    0, 5, 0, 7,
+//                                    4, 3, 2, 1,
+//                                    5, 7, 0, 0};
     float cost = 0;
 //    printf("%lu\n",sizeof(float));
 //    printf("%lu\n",sizeof(double));
@@ -139,7 +139,7 @@ int main(int argc, const char * argv[]) {
 //        print_game_board(root->game_board);
         
         // Create tree
-        create_tree(root,4);
+        create_tree(root,3);
         
 //        printf("left game board\n");
 //        print_game_board(root->left->game_board);
@@ -156,9 +156,10 @@ int main(int argc, const char * argv[]) {
 //        printf("down game board\n");
 //        print_game_board(root->down->game_board);
 //        printf("number of random moves = %d\n",root->down->num_moves);
+        char next_move = 'a';
+        next_move = eval_next_move_root(root);
+        printf("next move = %c",next_move);
         
-        eval_next_move(root);
-        printf("cost = %f",cost);
         //Destory Tree
         destroy_tree(root);
         free(root);

@@ -526,10 +526,16 @@ uint8_t *create_random_board(uint8_t *game_board, int *last_zero_ind, uint8_t ra
 // Evalutate Cost function for a leaf
 float eval_cost(uint8_t *game_board){
     float cost = 0;
+    cost = ((double)count_zeros(game_board))/16;
+    
+    uint8_t max = 0;
     for (int ind = 0; ind<16; ind++) {
-        cost += game_board[ind]-game_board[ind];
+        if (max<game_board[ind]) {
+            max = game_board[ind];
+        }
     }
-//    printf("%f",cost);
+    
+    cost = cost + ((double)max)/64;
     return cost;
 }
 
@@ -619,13 +625,129 @@ void eval_next_move(struct rand_node *root){
 
     // Pick the best cost here
     if (is_terminal==0) {
-//        root->cost = left_cost + right_cost + up_cost + down_cost;
-//        root->cost = (left_cost + right_cost + up_cost + down_cost)/4 ;
-        root->cost = left_cost;
+        float max = 0;
+        
+        max = left_cost;
+        if (right_cost>max) {
+            max = right_cost;
+        }
+        if (up_cost>max) {
+            max = up_cost;
+        }
+        if (down_cost>max) {
+            max = down_cost;
+        }
+        root->cost = max;
+//        printf("root cost %f\n",root->cost);
+//        printf("left cost%f\n",left_cost);
+//        printf("right cost%f\n",right_cost);
+//        printf("up cost%f\n",up_cost);
+//        printf("down cost%f\n",down_cost);
+    }
+}
+
+// ========================================================================================
+// Eval next move
+char eval_next_move_root(struct rand_node *root){
+    int is_terminal = 0;
+    float left_cost, right_cost, up_cost, down_cost;
+    char next_move = 'l';
+    left_cost = 0;
+    right_cost = 0;
+    up_cost = 0;
+    down_cost = 0;
+    
+    if (root->left != 0) {
+        
+        // Keep going down the tree if not at the end
+        for (int ind = 0; ind<root->left->num_moves; ind++) {
+            eval_next_move(root->left->moves[ind]);
+        }
+        
+        // Calculate the expectimax value from the previous value
+        for (int ind = 0; ind<root->left->num_moves/2; ind++) {
+            left_cost += 0.9*root->left->moves[ind]->cost/root->left->num_moves/2.0;
+        }
+        
+        for (int ind = root->left->num_moves/2; ind<root->left->num_moves; ind++) {
+            left_cost += 0.1*root->left->moves[ind]->cost/root->left->num_moves/2.0;
+        }
+        
+    }
+    
+    if (root->right != 0) {
+        
+        // Keep going down the tree if not at the end
+        for (int ind = 0; ind<root->right->num_moves; ind++) {
+            eval_next_move(root->right->moves[ind]);
+        }
+        
+        // Calculate the expectimax value from the previous value
+        for (int ind = 0; ind<root->right->num_moves/2; ind++) {
+            right_cost += 0.9*root->right->moves[ind]->cost/root->right->num_moves/2.0;
+        }
+        
+        for (int ind = root->right->num_moves/2; ind<root->right->num_moves; ind++) {
+            right_cost += 0.1*root->right->moves[ind]->cost/root->right->num_moves/2.0;
+        }
+    }
+    if (root->up != 0) {
+        
+        // Keep going down the tree if not at the end
+        for (int ind = 0; ind<root->up->num_moves; ind++) {
+            eval_next_move(root->up->moves[ind]);
+        }
+        
+        // Calculate the expectimax value from the previous value
+        for (int ind = 0; ind<root->up->num_moves/2; ind++) {
+            up_cost += 0.9*root->up->moves[ind]->cost/root->up->num_moves/2.0;
+        }
+        
+        for (int ind = root->up->num_moves/2; ind<root->up->num_moves; ind++) {
+            up_cost += 0.1*root->up->moves[ind]->cost/root->up->num_moves/2.0;
+        }
+    }
+    
+    if (root->down != 0) {
+        
+        // Keep going down the tree if not at the end
+        for (int ind = 0; ind<root->down->num_moves; ind++) {
+            eval_next_move(root->down->moves[ind]);
+        }
+        
+        // Calculate the expectimax value from the previous value
+        for (int ind = 0; ind<root->down->num_moves/2; ind++) {
+            down_cost += 0.9*root->down->moves[ind]->cost/root->down->num_moves/2.0;
+        }
+        
+        for (int ind = root->down->num_moves/2; ind<root->down->num_moves; ind++) {
+            down_cost += 0.1*root->down->moves[ind]->cost/root->down->num_moves/2.0;
+        }
+    }
+    
+    // Pick the best cost here
+    if (is_terminal==0) {
+        float max = 0;
+        max = left_cost;
+        
+        if (right_cost>max) {
+            max = right_cost;
+            next_move = 'r';
+        }
+        if (up_cost>max) {
+            max = up_cost;
+            next_move = 'u';
+        }
+        if (down_cost>max) {
+            max = down_cost;
+            next_move = 'd';
+        }
+        root->cost = max;
         printf("root cost %f\n",root->cost);
         printf("left cost%f\n",left_cost);
         printf("right cost%f\n",right_cost);
         printf("up cost%f\n",up_cost);
         printf("down cost%f\n",down_cost);
     }
+    return next_move;
 }
