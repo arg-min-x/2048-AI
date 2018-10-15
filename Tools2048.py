@@ -140,7 +140,7 @@ class RandomNode:
             
             # Use parallel execution
             self.game_board = game_board
-            usePool = 1
+            usePool = 0
             if usePool:
 
                 # Calculate the tree using a multiple process
@@ -197,24 +197,23 @@ class RandomNode:
 
             # Not using the parallel pool
             else:
-                validMove = checkValidMoves(game_board)
-
-                if validMove[0]:
-                    self.right = MoveNode(right_move_return(game_board), depth)
-                else:
-                    self.left = []
-                if validMove[1]:
-                    self.left = MoveNode(left_move_return(game_board), depth)
-                else:
-                    self.right = []
-                if validMove[2]:
-                    self.up = MoveNode(up_move_return(game_board), depth)
-                else:
-                    self.up = []
-                if validMove[3]:
-                    self.down = MoveNode(down_move_return(game_board), depth)
-                else:
-                    self.down = []
+			validMove = checkValidMoves(game_board)
+			if validMove[0]:
+				self.right = MoveNode(right_move_return(game_board), depth)
+			else:
+				self.left = []
+			if validMove[1]:
+				self.left = MoveNode(left_move_return(game_board), depth)
+			else:
+				self.right = []
+			if validMove[2]:
+				self.up = MoveNode(up_move_return(game_board), depth)
+			else:
+				self.up = []
+			if validMove[3]:
+				self.down = MoveNode(down_move_return(game_board), depth)
+			else:
+				self.down = []
 
         # Build branches not from the root node
         else:
@@ -248,7 +247,7 @@ class RandomNode:
         if isroot:
             # Find the valid next moves, and only calculate cost for valid moves
             validMoves = checkValidMoves(self.game_board)
-            usePool = 1
+            usePool = 0
 
             #Use a parralel pool
             if usePool:
@@ -304,10 +303,41 @@ class RandomNode:
 
             # Use single threaded
             else:
-                right_cost = self.right.eval_cost()
-                left_cost  = self.left.eval_cost()
-                up_cost = self.up.eval_cost()
-                down_cost = self.down.eval_cost()
+			if validMoves[0]:
+				if self.right:
+					right_cost = self.right.eval_cost()
+					#right_eval = pool.apply_async(self.right.eval_cost)
+				else:
+					right_cost = 100000
+			else:
+				right_cost = 100000
+
+			if validMoves[1]:
+				if self.left:
+				    left_cost  = self.left.eval_cost()
+				    #left_eval = pool.apply_async(self.left.eval_cost)
+				else:
+				    left_cost = 100000
+			else:
+				left_cost = 100000
+
+			if validMoves[2]:
+				if self.up:
+				    up_cost = self.up.eval_cost()
+				    #up_eval = pool.apply_async(self.up.eval_cost)
+				else:
+				    up_cost = 100000
+			else:
+				up_cost = 100000
+
+			if validMoves[3]:
+				if self.down:
+				    down_cost = self.down.eval_cost()
+				    #down_eval = pool.apply_async(self.down.eval_cost)
+				else:
+				    down_cost = 100000
+			else:
+				down_cost = 100000
 
         # If not the root node
         else:
@@ -402,7 +432,7 @@ def evalNextMove(game_board):
     num_boards = np.size(zeroInd, axis=1)
 
     if num_boards >13:
-        depth = 1
+        depth = 2
     elif num_boards > 5:
         depth = 1
     else:

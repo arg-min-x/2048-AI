@@ -8,6 +8,8 @@
 
 #include "lib2048.h"
 #include <stdlib.h>
+#include <time.h>
+#include <math.h>
 
 // ========================================================================================
 //          Game Tree Structures and functions
@@ -503,8 +505,19 @@ uint8_t count_zeros(uint8_t *game_board){
     return zero_count;
 }
 
+// Compare to boards return 1 if they are the same
+uint8_t compare_board(uint8_t *board1, uint8_t *board2){
+	int identical = 1;
+	for (int ind = 0; ind<16; ind++){
+		if (board1[ind] != board2[ind]){
+			identical = 0;
+		}
+	}
+return identical;
+}
+
 // ========================================================================================
-// Count the number of zeros on the board
+// Create a board with two or four added at a zero locations
 uint8_t *create_random_board(uint8_t *game_board, int *last_zero_ind, uint8_t rand_value){
     int ind;
     uint8_t *rand_board = malloc(16*sizeof(uint8_t));
@@ -523,19 +536,114 @@ uint8_t *create_random_board(uint8_t *game_board, int *last_zero_ind, uint8_t ra
 }
 
 // ========================================================================================
+// adds a 2 or 4 to the board in a random location
+uint8_t *add_random_number(uint8_t *game_board){
+    int num_zeros, ind_z, rand_ind, rand_num;
+	ind_z = 0;
+	num_zeros = count_zeros(game_board);
+	int *zero_inds;
+	zero_inds = malloc(sizeof(int)*num_zeros);
+
+	for (int ind =0; ind<16; ind++){
+		if (game_board[ind] ==0) {
+			zero_inds[ind_z] = ind;
+			ind_z++;
+		}	
+	}
+	
+	srand(time(NULL));
+	rand_ind = rand() % num_zeros + 0;
+	rand_num = rand() % 100 + 1;
+	if (rand_num <11){
+		rand_num = 2;
+	}else{
+		rand_num = 1;
+	}
+
+	game_board[zero_inds[rand_ind]] = rand_num;
+	//printf("\n rand ind %d  zero ind %d rand num %d\n",rand_ind, zero_inds[rand_ind], rand_num);
+
+	
+	//for (int ind = 0; ind<num_zeros; ind++){
+	//	printf("%d ",zero_inds[ind]);	
+	//}
+	free(zero_inds);
+    return game_board;
+}
+
+// ========================================================================================
 // Evalutate Cost function for a leaf
 float eval_cost(uint8_t *game_board){
     float cost = 0;
-    cost = ((double)count_zeros(game_board))/16;
-    
+    cost = ((double)count_zeros(game_board))/15;
+
+	// apply a smoothness constraint
+    int grad[18];
+	int grad_sum=0;
+	int ind_2 = 0;
+	grad[0] = game_board[0];
+	grad[17] = game_board[12];
+	
+/*	for (int ind = 0; ind<18; ind++){*/
+/*		grad[ind] = 0;*/
+/*		printf("%d ",grad[ind]);*/
+/*	}*/
+/*	for (int ind = 0; ind<16; ind++){*/
+/*		printf("%d ",game_board[ind]);*/
+/*	}*/
+
+	for (int ind = 0; ind<4; ind++){
+		grad[ind+1] = game_board[ind];
+	}
+	for (int ind = 0; ind<4; ind++){
+		grad[ind+1] = game_board[ind];
+	}
+	ind_2 = 7;
+	for (int ind = 4; ind<8; ind++){
+		grad[ind+1] = game_board[ind_2];
+		ind_2--;
+	}
+	for (int ind = 8; ind<12; ind++){
+		grad[ind+1] = game_board[ind];
+	}
+	ind_2 = 15;
+	for (int ind = 12; ind<16; ind++){
+		grad[ind+1] = game_board[ind_2];
+		ind_2--;
+	}
+
+/*	for (int ind = 0; ind<18; ind++){*/
+/*		printf("%d ",grad[ind]);*/
+/*	}*/
+/*	printf("\n");*/
+	for (int ind = 0; ind<17; ind++){
+		grad[ind] = abs(grad[ind]);
+	}
+	grad[17] = 0;
+
+/*	for (int ind = 0; ind<18; ind++){*/
+/*		printf("%d ",grad[ind]);*/
+/*	}*/
+
+	for (int ind = 0; ind<17; ind++){
+		grad_sum =+ grad[ind]*grad[ind]*grad[ind];
+	}
+
+	// Find the maximum of the board
     uint8_t max = 0;
+	uint8_t max_ind = 0;
+	uint8_t max_ind_cost = 0;
     for (int ind = 0; ind<16; ind++) {
         if (max<game_board[ind]) {
             max = game_board[ind];
+			max_ind = ind;
         }
     }
+	if (max_ind==0){
+		max_ind_cost = 1;
+	}
     
-    cost = cost + ((double)max)/64;
+    cost = cost - 1.5*(double)grad_sum + max_ind_cost;
     return cost;
 }
 
@@ -729,7 +837,7 @@ char eval_next_move_root(struct rand_node *root){
     if (is_terminal==0) {
         float max = 0;
         max = left_cost;
-        
+        next_move = 'l';
         if (right_cost>max) {
             max = right_cost;
             next_move = 'r';
@@ -743,11 +851,11 @@ char eval_next_move_root(struct rand_node *root){
             next_move = 'd';
         }
         root->cost = max;
-        printf("root cost %f\n",root->cost);
-        printf("left cost%f\n",left_cost);
-        printf("right cost%f\n",right_cost);
-        printf("up cost%f\n",up_cost);
-        printf("down cost%f\n",down_cost);
+/*        printf("root cost %f\n",root->cost);*/
+/*        printf("left cost%f\n",left_cost);*/
+/*        printf("right cost%f\n",right_cost);*/
+/*        printf("up cost%f\n",up_cost);*/
+/*        printf("down cost%f\n",down_cost);*/
     }
     return next_move;
 }

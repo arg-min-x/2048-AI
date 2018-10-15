@@ -10,6 +10,7 @@
 #include <stdio.h>
 #include <stdlib.h>
 #include "lib2048.h"
+#include <stdint.h>
 
 //int main(int argc, const char * argv[]) {
 //

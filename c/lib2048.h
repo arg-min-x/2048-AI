@@ -11,6 +11,7 @@
 
 #include <stdio.h>
 #include <stdlib.h>
+#include <stdint.h>
 
 // ========================================================================================
 //          Game Tree Structures and functions
@@ -58,6 +59,9 @@ char eval_next_move_root(struct rand_node *root);
 // Print the game board
 void print_game_board(uint8_t *game_board);
 
+//// Print the game board
+//void print_game_board_pow_2(uint8_t *game_board);
+
 // Move the game board left return pointer to new board
 uint8_t *move_left(uint8_t *game_board);
 
@@ -73,8 +77,12 @@ uint8_t *move_down(uint8_t *game_board);
 // Count the number of zeros on the board
 uint8_t count_zeros(uint8_t *game_board);
 
+// adds a 2 or 4 to the board in a random location
+uint8_t *add_random_number(uint8_t *game_board);
+
 // Create a board with two or four added at a zero locations
 uint8_t *create_random_board(uint8_t *game_board, int *last_zero_ind, uint8_t rand_value);
 
-
+// Compare to boards return 1 if they are the same
+uint8_t compare_board(uint8_t *board1, uint8_t *board2);
 #endif /* lib2048_h */
