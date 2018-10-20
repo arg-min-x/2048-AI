@@ -35,6 +35,9 @@ typedef struct rand_node {
 void set_move_null(struct rand_node *leaf);
 
 // Create The tree
+void create_tree_root(struct rand_node *root, int depth);
+
+// Create The tree
 void create_tree(struct rand_node *root, int depth);
 
 // Call the create tree function on each random node

@@ -10,7 +10,7 @@
 #include <stdlib.h>
 #include <time.h>
 #include <math.h>
-
+#include <omp.h>
 // ========================================================================================
 //          Game Tree Structures and functions
 // ========================================================================================
@@ -34,6 +34,157 @@ void create_children_move_node(struct move_node *leaf){
     
     // Asign the move array pointer to the parent
     leaf->moves = moves_array;
+}
+
+// Create The tree
+void create_tree_root(struct rand_node *root, int depth){
+    
+    // If at the end of a tree
+    // Alocate the child nodes
+    struct move_node *left, *right, *up, *down;
+    left = malloc(sizeof(move_node));
+    right = malloc(sizeof(move_node));
+    up = malloc(sizeof(move_node));
+    down = malloc(sizeof(move_node));
+    
+    uint8_t tmp_board 
+    // Asign child nodes
+    root->left = left;
+    root->right = right;
+    root->up = up;
+    root->down = down;
+    
+    // Asign child move boards
+    root->left->game_board = move_left(root->game_board);
+    root->right->game_board = move_right(root->game_board);
+    root->up->game_board = move_up(root->game_board);
+    root->down->game_board = move_down(root->game_board);
+    
+    // Set the number of moves
+    root->left->num_moves = 2*count_zeros(root->left->game_board);
+    root->right->num_moves = 2*count_zeros(root->right->game_board);
+    root->up->num_moves = 2*count_zeros(root->up->game_board);
+    root->down->num_moves = 2*count_zeros(root->down->game_board);
+    
+    // Construct child nodes
+    create_children_move_node(left);
+    create_children_move_node(right);
+    create_children_move_node(up);
+    create_children_move_node(down);
+
+    // Asign random move boards
+
+//         create random board for right node
+    int last_ind = 0;
+    uint8_t rand_val = 1;
+//        printf("\n");
+//        printf("start random boards\n");
+//        print_game_board(root->left->game_board);
+//        printf("\n");
+    for (int ind = 0; ind < root->left->num_moves/2; ind++) {
+        root->left->moves[ind]->game_board = create_random_board(root->left->game_board,&last_ind,rand_val);
+//            print_game_board(root->left->moves[ind]->game_board);
+//            printf("\n");
+    }
+    last_ind = 0;
+    rand_val = 2;
+//        printf("\n");
+//        printf("start random boards\n");
+//        print_game_board(root->left->game_board);
+//        printf("\n");
+    for (int ind = root->left->num_moves/2; ind < root->left->num_moves; ind++) {
+        root->left->moves[ind]->game_board = create_random_board(root->left->game_board,&last_ind,rand_val);
+//            print_game_board(root->left->moves[ind]->game_board);
+//            printf("\n");
+    }
+    
+    // create random board for right node
+    last_ind = 0;
+    rand_val = 1;
+    for (int ind = 0; ind < root->right->num_moves/2; ind++) {
+        root->right->moves[ind]->game_board = create_random_board(root->right->game_board,&last_ind,rand_val);
+    }
+    last_ind = 0;
+    rand_val = 2;
+    for (int ind = root->right->num_moves/2; ind < root->right->num_moves; ind++) {
+        root->right->moves[ind]->game_board = create_random_board(root->right->game_board,&last_ind,rand_val);
+    }
+    
+    // create random board for up node
+    last_ind = 0;
+    rand_val = 1;
+    for (int ind = 0; ind < root->up->num_moves/2; ind++) {
+        root->up->moves[ind]->game_board = create_random_board(root->up->game_board,&last_ind,rand_val);
+    }
+    last_ind = 0;
+    rand_val = 2;
+    for (int ind = root->up->num_moves/2; ind < root->up->num_moves; ind++) {
+        root->up->moves[ind]->game_board = create_random_board(root->up->game_board,&last_ind,rand_val);
+    }
+    
+    // create random board for down node
+    last_ind = 0;
+    rand_val = 1;
+    for (int ind = 0; ind < root->down->num_moves/2; ind++) {
+        root->down->moves[ind]->game_board = create_random_board(root->down->game_board,&last_ind,rand_val);
+    }
+    last_ind = 0;
+    rand_val = 2;
+    for (int ind = root->down->num_moves/2; ind < root->down->num_moves; ind++) {
+        root->down->moves[ind]->game_board = create_random_board(root->down->game_board,&last_ind,rand_val);
+    }
+
+//        for (int ind = 0; ind < root->left->num_moves; ind++) {
+//            root->left->moves[ind]->game_board = move_left(root->game_board);
+//        }
+//        
+//        for (int ind = 0; ind < root->right->num_moves; ind++) {
+//            root->right->moves[ind]->game_board = move_left(root->game_board);
+//        }
+//        
+//        for (int ind = 0; ind < root->up->num_moves; ind++) {
+//            root->up->moves[ind]->game_board = move_left(root->game_board);
+//        }
+//        
+//        for (int ind = 0; ind < root->down->num_moves; ind++) {
+//            root->down->moves[ind]->game_board = move_left(root->game_board);
+//        }
+    if (depth >1) {
+
+		omp_set_num_threads(4);
+        // Call Constructor on the next level
+		#pragma omp parallel
+		#pragma omp sections nowait
+		{
+			#pragma omp section
+			{
+				for (int ind = 0; ind < root->left->num_moves; ind++) {
+				    create_tree(root->left->moves[ind], depth-1);
+				}
+		    }
+		
+			#pragma omp section
+			{
+				for (int ind = 0; ind < root->right->num_moves; ind++) {
+				    create_tree(root->right->moves[ind], depth-1);
+				}
+		    }
+
+			#pragma omp section
+			{
+				for (int ind = 0; ind < root->up->num_moves; ind++) {
+				    create_tree(root->up->moves[ind], depth-1);
+				}
+		    }
+
+			#pragma omp section
+			{
+				for (int ind = 0; ind < root->down->num_moves; ind++) {
+				    create_tree(root->down->moves[ind], depth-1);
+				}
+			}
+		}
+    }   
 }
 
 // Create The tree
@@ -149,26 +300,25 @@ void create_tree(struct rand_node *root, int depth){
 //            root->down->moves[ind]->game_board = move_left(root->game_board);
 //        }
     if (depth >1) {
-        // Call Constructor on the next level
-        for (int ind = 0; ind < root->left->num_moves; ind++) {
-            create_tree(root->left->moves[ind], depth-1);
-        }
-        
-        for (int ind = 0; ind < root->right->num_moves; ind++) {
-            create_tree(root->right->moves[ind], depth-1);
-        }
-        
-        for (int ind = 0; ind < root->up->num_moves; ind++) {
-            create_tree(root->up->moves[ind], depth-1);
-        }
-        
-        for (int ind = 0; ind < root->down->num_moves; ind++) {
-            create_tree(root->down->moves[ind], depth-1);
-        }
-    }
-    
-}
 
+        // Call Constructor on the next level
+		for (int ind = 0; ind < root->left->num_moves; ind++) {
+		    create_tree(root->left->moves[ind], depth-1);
+		}
+
+		for (int ind = 0; ind < root->right->num_moves; ind++) {
+		    create_tree(root->right->moves[ind], depth-1);
+		}
+
+		for (int ind = 0; ind < root->up->num_moves; ind++) {
+		    create_tree(root->up->moves[ind], depth-1);
+		}
+
+		for (int ind = 0; ind < root->down->num_moves; ind++) {
+		    create_tree(root->down->moves[ind], depth-1);
+		}
+    }   
+}
 // Destroy the tree
 void destroy_tree(struct rand_node *root){
     
@@ -577,71 +727,101 @@ float eval_cost(uint8_t *game_board){
     float cost = 0;
     cost = ((double)count_zeros(game_board))/15;
 
-	// apply a smoothness constraint
-    int grad[18];
-	int grad_sum=0;
-	int ind_2 = 0;
-	grad[0] = game_board[0];
-	grad[17] = game_board[12];
-	
-/*	for (int ind = 0; ind<18; ind++){*/
-/*		grad[ind] = 0;*/
-/*		printf("%d ",grad[ind]);*/
-/*	}*/
-/*	for (int ind = 0; ind<16; ind++){*/
-/*		printf("%d ",game_board[ind]);*/
-/*	}*/
-
-	for (int ind = 0; ind<4; ind++){
-		grad[ind+1] = game_board[ind];
-	}
-	for (int ind = 0; ind<4; ind++){
-		grad[ind+1] = game_board[ind];
-	}
-	ind_2 = 7;
-	for (int ind = 4; ind<8; ind++){
-		grad[ind+1] = game_board[ind_2];
-		ind_2--;
-	}
-	for (int ind = 8; ind<12; ind++){
-		grad[ind+1] = game_board[ind];
-	}
-	ind_2 = 15;
-	for (int ind = 12; ind<16; ind++){
-		grad[ind+1] = game_board[ind_2];
-		ind_2--;
-	}
-
-/*	for (int ind = 0; ind<18; ind++){*/
-/*		printf("%d ",grad[ind]);*/
-/*	}*/
-/*	printf("\n");*/
-	for (int ind = 0; ind<17; ind++){
-		grad[ind] = abs(grad[ind]);
-	}
-	grad[17] = 0;
-
-/*	for (int ind = 0; ind<18; ind++){*/
-/*		printf("%d ",grad[ind]);*/
-/*	}*/
-
-	for (int ind = 0; ind<17; ind++){
-		grad_sum =+ grad[ind]*grad[ind]*grad[ind];
-	}
-
 	// Find the maximum of the board
-    uint8_t max = 0;
+    int max = 0;
 	uint8_t max_ind = 0;
 	uint8_t max_ind_cost = 0;
     for (int ind = 0; ind<16; ind++) {
         if (max<game_board[ind]) {
-            max = game_board[ind];
+            max = (int)game_board[ind];
 			max_ind = ind;
         }
     }
 	if (max_ind==0){
 		max_ind_cost = 1;
 	}
+
+/*	// apply a smoothness constraint*/
+/*    int grad[18];*/
+/*	int grad_sum=0;*/
+/*	int ind_2 = 0;*/
+/*	grad[0] = game_board[0];*/
+/*	grad[17] = game_board[12];*/
+/*	*/
+/*	for (int ind = 0; ind<4; ind++){*/
+/*		grad[ind+1] = game_board[ind];*/
+/*	}*/
+/*	for (int ind = 0; ind<4; ind++){*/
+/*		grad[ind+1] = game_board[ind];*/
+/*	}*/
+/*	ind_2 = 7;*/
+/*	for (int ind = 4; ind<8; ind++){*/
+/*		grad[ind+1] = game_board[ind_2];*/
+/*		ind_2--;*/
+/*	}*/
+/*	for (int ind = 8; ind<12; ind++){*/
+/*		grad[ind+1] = game_board[ind];*/
+/*	}*/
+/*	ind_2 = 15;*/
+/*	for (int ind = 12; ind<16; ind++){*/
+/*		grad[ind+1] = game_board[ind_2];*/
+/*		ind_2--;*/
+/*	}*/
+
+/*	for (int ind = 0; ind<17; ind++){*/
+/*		grad[ind] = abs(grad[ind]);*/
+/*	}*/
+/*	grad[17] = 0;*/
+
+/*	for (int ind = 0; ind<17; ind++){*/
+/*		grad_sum =+ grad[ind]*grad[ind]*grad[ind];*/
+/*	}*/
+
+		// apply a smoothness constraint
+	    int grad[16];
+		int grad_sum=0;
+		int ind_2 = 0;
+		
+		for (int ind = 0; ind<4; ind++){
+			grad[ind] = game_board[ind]*max;
+			if (max>0){
+				max--;
+			}
+		}
+		ind_2 = 7;
+		for (int ind = 4; ind<8; ind++){
+			grad[ind] = game_board[ind_2]*max;
+			ind_2--;
+			if (max>0){
+				max--;
+			}
+		}
+		for (int ind = 8; ind<12; ind++){
+			grad[ind] = game_board[ind]*max;
+			if (max>0){
+				max--;
+			}
+		}
+		ind_2 = 15;
+
+		for (int ind = 12; ind<16; ind++){
+			grad[ind] = game_board[ind_2]*max;
+			if (max>0){
+				max--;
+			}
+			ind_2--;
+		}
+
+		for (int ind = 0; ind<17; ind++){
+			grad[ind] = abs(grad[ind]);
+		}
+		grad[17] = 0;
+
+		for (int ind = 0; ind<17; ind++){
+			grad_sum =+ grad[ind]*grad[ind]*grad[ind];
+		}
+
+
     
     cost = cost - 1.5*(double)grad_sum + max_ind_cost;
     return cost;
@@ -765,73 +945,90 @@ char eval_next_move_root(struct rand_node *root){
     up_cost = 0;
     down_cost = 0;
     
-    if (root->left != 0) {
-        
-        // Keep going down the tree if not at the end
-        for (int ind = 0; ind<root->left->num_moves; ind++) {
-            eval_next_move(root->left->moves[ind]);
-        }
-        
-        // Calculate the expectimax value from the previous value
-        for (int ind = 0; ind<root->left->num_moves/2; ind++) {
-            left_cost += 0.9*root->left->moves[ind]->cost/root->left->num_moves/2.0;
-        }
-        
-        for (int ind = root->left->num_moves/2; ind<root->left->num_moves; ind++) {
-            left_cost += 0.1*root->left->moves[ind]->cost/root->left->num_moves/2.0;
-        }
-        
-    }
-    
-    if (root->right != 0) {
-        
-        // Keep going down the tree if not at the end
-        for (int ind = 0; ind<root->right->num_moves; ind++) {
-            eval_next_move(root->right->moves[ind]);
-        }
-        
-        // Calculate the expectimax value from the previous value
-        for (int ind = 0; ind<root->right->num_moves/2; ind++) {
-            right_cost += 0.9*root->right->moves[ind]->cost/root->right->num_moves/2.0;
-        }
-        
-        for (int ind = root->right->num_moves/2; ind<root->right->num_moves; ind++) {
-            right_cost += 0.1*root->right->moves[ind]->cost/root->right->num_moves/2.0;
-        }
-    }
-    if (root->up != 0) {
-        
-        // Keep going down the tree if not at the end
-        for (int ind = 0; ind<root->up->num_moves; ind++) {
-            eval_next_move(root->up->moves[ind]);
-        }
-        
-        // Calculate the expectimax value from the previous value
-        for (int ind = 0; ind<root->up->num_moves/2; ind++) {
-            up_cost += 0.9*root->up->moves[ind]->cost/root->up->num_moves/2.0;
-        }
-        
-        for (int ind = root->up->num_moves/2; ind<root->up->num_moves; ind++) {
-            up_cost += 0.1*root->up->moves[ind]->cost/root->up->num_moves/2.0;
-        }
-    }
-    
-    if (root->down != 0) {
-        
-        // Keep going down the tree if not at the end
-        for (int ind = 0; ind<root->down->num_moves; ind++) {
-            eval_next_move(root->down->moves[ind]);
-        }
-        
-        // Calculate the expectimax value from the previous value
-        for (int ind = 0; ind<root->down->num_moves/2; ind++) {
-            down_cost += 0.9*root->down->moves[ind]->cost/root->down->num_moves/2.0;
-        }
-        
-        for (int ind = root->down->num_moves/2; ind<root->down->num_moves; ind++) {
-            down_cost += 0.1*root->down->moves[ind]->cost/root->down->num_moves/2.0;
-        }
-    }
+	#pragma omp parallel
+	#pragma omp sections nowait
+	{
+		#pragma omp section
+		{
+			if (root->left != 0) {
+				
+				// Keep going down the tree if not at the end
+				for (int ind = 0; ind<root->left->num_moves; ind++) {
+				    eval_next_move(root->left->moves[ind]);
+				}
+				
+				// Calculate the expectimax value from the previous value
+				for (int ind = 0; ind<root->left->num_moves/2; ind++) {
+				    left_cost += 0.9*root->left->moves[ind]->cost/root->left->num_moves/2.0;
+				}
+				
+				for (int ind = root->left->num_moves/2; ind<root->left->num_moves; ind++) {
+				    left_cost += 0.1*root->left->moves[ind]->cost/root->left->num_moves/2.0;
+				}
+				
+			}
+		}
+
+		#pragma omp section
+		{
+			if (root->right != 0) {
+			
+				// Keep going down the tree if not at the end
+				for (int ind = 0; ind<root->right->num_moves; ind++) {
+					eval_next_move(root->right->moves[ind]);
+				}
+			
+				// Calculate the expectimax value from the previous value
+				for (int ind = 0; ind<root->right->num_moves/2; ind++) {
+					right_cost += 0.9*root->right->moves[ind]->cost/root->right->num_moves/2.0;
+				}
+			
+				for (int ind = root->right->num_moves/2; ind<root->right->num_moves; ind++) {
+					right_cost += 0.1*root->right->moves[ind]->cost/root->right->num_moves/2.0;
+				}
+			}
+		}
+
+		#pragma omp section
+		{
+			if (root->up != 0) {
+				
+				// Keep going down the tree if not at the end
+				for (int ind = 0; ind<root->up->num_moves; ind++) {
+				    eval_next_move(root->up->moves[ind]);
+				}
+				
+				// Calculate the expectimax value from the previous value
+				for (int ind = 0; ind<root->up->num_moves/2; ind++) {
+				    up_cost += 0.9*root->up->moves[ind]->cost/root->up->num_moves/2.0;
+				}
+				
+				for (int ind = root->up->num_moves/2; ind<root->up->num_moves; ind++) {
+				    up_cost += 0.1*root->up->moves[ind]->cost/root->up->num_moves/2.0;
+				}
+			}
+    	}
+
+		#pragma omp section
+		{
+			if (root->down != 0) {
+				
+				// Keep going down the tree if not at the end
+				for (int ind = 0; ind<root->down->num_moves; ind++) {
+				    eval_next_move(root->down->moves[ind]);
+				}
+				
+				// Calculate the expectimax value from the previous value
+				for (int ind = 0; ind<root->down->num_moves/2; ind++) {
+				    down_cost += 0.9*root->down->moves[ind]->cost/root->down->num_moves/2.0;
+				}
+				
+				for (int ind = root->down->num_moves/2; ind<root->down->num_moves; ind++) {
+				    down_cost += 0.1*root->down->moves[ind]->cost/root->down->num_moves/2.0;
+				}
+			}
+		}
+	}
     
     // Pick the best cost here
     if (is_terminal==0) {
