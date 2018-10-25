@@ -29,14 +29,12 @@ while (keep_moving>0){
         root->game_board = &move_board[0];
         
         // Create tree
-		if (num_zeros>13){
-        	create_tree_root(root,2);
-		}else if (num_zeros<14 && num_zeros>7){
+		if (num_zeros>6){
         	create_tree_root(root,3);
-		}else if (num_zeros<=7 && num_zeros > 4){
-        	create_tree_root(root,3);
-		}else if (num_zeros<=4){
+		}else if (num_zeros<=6 && num_zeros > 1){
         	create_tree_root(root,4);
+		}else if (num_zeros<=1){
+        	create_tree_root(root,5);
 		}
         char next_move = 'a';
 		char up, down, left, right;
