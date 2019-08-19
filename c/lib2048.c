@@ -228,7 +228,7 @@ float create_tree(struct rand_node *root, int depth, int isroot){
     
 	int last_ind = 0;
 	uint8_t rand_val = 1;
-	omp_set_num_threads(4);
+	omp_set_num_threads(8);
 	uint8_t *tmp_board;
 	tmp_board = move_left(root->game_board);
     // Call Constructor on the next level

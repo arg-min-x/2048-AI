@@ -39,13 +39,16 @@ void set_move_null(struct rand_node *leaf);
 void create_tree_root(struct rand_node *root, int depth);
 
 // Create The tree
-void create_tree(struct rand_node *root, int depth);
+float create_tree(struct rand_node *root, int depth, int isroot);
 
 // Call the create tree function on each random node
 void create_tree_next_level(struct move_node *leaf,int depth);
 
 // Destroy the tree
 void destroy_tree(struct rand_node *root);
+
+// Destory a move node
+void destroy_move_node(struct move_node *move);
 
 // Evalutate Cost function for a leaf
 float eval_cost(uint8_t *game_board);
