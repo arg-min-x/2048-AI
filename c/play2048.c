@@ -3,6 +3,26 @@
 #include "lib2048.h"
 #include <stdint.h>
 #include <time.h>
+#include <ncurses.h>
+#include <math.h>
+
+void print_game_boardw(uint8_t *game_board){
+	clear();
+	int n_board[16];
+	for (int i = 0; i < 16; ++i)
+	{
+		n_board[i] = pow(2, game_board[i]);
+		if (n_board[i]==1)
+		{
+			n_board[i] = 0;
+		}
+	}
+    for (int ind = 0; ind < 4; ind++) {
+        printw("%d\t%d\t%d\t%d\n",n_board[0+4*ind],n_board[1+4*ind],n_board[2+4*ind]
+               ,n_board[3+4*ind]);
+    }
+    refresh();
+}
 
 // Test the tree creation and deletion
 int main(int argc, const char * argv[]) {
@@ -18,7 +38,8 @@ int keep_moving = 1;
 int num_zeros = 15;
 int num_moves = 0;
 move_board = add_random_number(game_board_orig);
-print_game_board(move_board);
+initscr();
+print_game_boardw(move_board);
 printf("\n");
 
 while (keep_moving>0){
@@ -31,9 +52,9 @@ while (keep_moving>0){
         // Create tree
 		if (num_zeros>6){
         	create_tree_root(root,3);
-		}else if (num_zeros<=6 && num_zeros > 1){
+		}else if (num_zeros<=6 && num_zeros > 0){
         	create_tree_root(root,4);
-		}else if (num_zeros<=1){
+		}else if (num_zeros==0){
         	create_tree_root(root,5);
 		}
         char next_move = 'a';
@@ -43,7 +64,7 @@ while (keep_moving>0){
 		left = 'l';
 		right = 'r';
         next_move = eval_next_move_root(root);
-        printf("next move = %c, number of moves = %d,\n",next_move,num_moves);
+        // printf("next move = %c, number of moves = %d,\n",next_move,num_moves);
         
         //Destory Tree
         destroy_tree(root);
@@ -52,24 +73,24 @@ while (keep_moving>0){
 		if (next_move==up){
 			move_board = move_up(move_board);
 			move_board = add_random_number(move_board);
-			print_game_board(move_board);
+			print_game_boardw(move_board);
 			printf("\n");
 		}else if(next_move==down){
 			move_board = move_down(move_board);
 			move_board = add_random_number(move_board);
-			print_game_board(move_board);
+			print_game_boardw(move_board);
 			printf("\n");
 		}
 		else if(next_move==left){
 			move_board = move_left(move_board);
 			move_board = add_random_number(move_board);
-			print_game_board(move_board);
+			print_game_boardw(move_board);
 			printf("\n");
 		}
 		else if(next_move==right){
 			move_board = move_right(move_board);
 			move_board = add_random_number(move_board);
-			print_game_board(move_board);
+			print_game_boardw(move_board);
 			printf("\n");
 		}
 
@@ -89,6 +110,7 @@ while (keep_moving>0){
 		}
 		num_zeros = count_zeros(move_board);
 		num_moves++;
+		// system("@cls||clear");
 }
 printf("\nYou Lose\n");
 }

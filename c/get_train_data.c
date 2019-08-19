@@ -27,7 +27,7 @@ int print_board(FILE *log_ptr,uint8_t *game_board, int num_moves){
 // Test the tree creation and deletion
 int main(int argc, const char * argv[]) {
 
-for (int ind = 0;ind<500;ind++){
+for (int ind = 0;ind<1;ind++){
 	sleep(1);
 	uint8_t game_board_orig[16] = { 0, 0, 0, 0,
 		                            0, 0, 0, 0,
@@ -47,8 +47,9 @@ for (int ind = 0;ind<500;ind++){
 	srand(seed+1);
 
 	FILE *log_ptr;
+	time_t stime = time(NULL);
 	char file_path[60];
-	sprintf(file_path,"/home/adam/2048-AI/data/%d.csv",ind);
+	sprintf(file_path,"/home/adam/2048_train_data/test/%ld.csv",(long int)stime);
 	log_ptr = fopen(file_path,"w");
 
 	while (keep_moving>0){

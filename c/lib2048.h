@@ -12,6 +12,7 @@
 #include <stdio.h>
 #include <stdlib.h>
 #include <stdint.h>
+#include <math.h>
 
 // ========================================================================================
 //          Game Tree Structures and functions
@@ -48,7 +49,16 @@ void destroy_tree(struct rand_node *root);
 
 // Evalutate Cost function for a leaf
 float eval_cost(uint8_t *game_board);
-    
+
+// Evalutate Cost function for a leaf
+float eval_cost_new(uint8_t *game_board);
+
+// Calculates the city block distance between all game board locs with val
+float calc_cb_distances(uint8_t *game_board, int val);
+
+// Calculates the city block distance between all game board locs with val
+float calc_cb_distances_next(uint8_t *game_board, int val, int val2);
+
 // Eval next move
 void eval_next_move(struct rand_node *root);
 

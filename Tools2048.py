@@ -1,12 +1,18 @@
 from multiprocessing.pool import Pool
 import numpy as np
+import keras
 
 
+cost_model = keras.models.load_model('bad_model')
+# cost_model.summary()
+costEval = lambda x: -cost_model.predict(np.reshape(np.array(x), (1, 16)))
+# costEval = lambda x: costEval2(x)
 # Evaluate the cost function of a game board
 def costEval(game_board):
-
     # Calculate the game score
     game_board = np.array(game_board)
+    # print(game_board)
+    # print(np.reshape(np.array(game_board), (1, 16)))
     # score = np.sum(game_board)
     # print 'Your Score is %d' %(score)
 
@@ -53,7 +59,7 @@ def costEval(game_board):
         cornerDist[2] = calcDistance(indices[0:2, 0], [3, 0])
         cornerDist[3] = calcDistance(indices[0:2, 0], [3, 3])
 
-        cornerDist = cornerDist.min()*np.log2(game_board.max())
+        cornerDist = cornerDist.min() * np.log2(game_board.max())
         # print cornerDist
     else:
         cornerDist = 0
@@ -74,16 +80,16 @@ def costEval(game_board):
     # # print v_grad
     # # print np.sum(np.abs(v_grad))
 
-    mono_col = np.hstack((game_board[:,0],game_board[-1:-5:-1,1], game_board[:,2], game_board[-1:-5:-1,3]))
-    mon_col_asc = np.log2(np.sum(np.abs(mono_col[1:16] - mono_col[0:15]+1)))
+    mono_col = np.hstack((game_board[:, 0], game_board[-1:-5:-1, 1], game_board[:, 2], game_board[-1:-5:-1, 3]))
+    mon_col_asc = np.log2(np.sum(np.abs(mono_col[1:16] - mono_col[0:15] + 1)))
     # mon_col_dec = np.sum(np.log2(np.abs(mono_col[1:16] - 1/2*mono_col[0:15]+1)))
 
     # print mono_col[1:16]
     # print 2*mono_col[0:15]
 
     mono_row = np.transpose(game_board)
-    mono_row = np.hstack((mono_row[:,0], mono_row[-1:-5:-1,1], mono_row[:,2], mono_row[-1:-5:-1,3]))
-    mon_row_asc = np.log2(np.sum(np.abs(mono_row[1:16] - mono_row[0:15]+1)))
+    mono_row = np.hstack((mono_row[:, 0], mono_row[-1:-5:-1, 1], mono_row[:, 2], mono_row[-1:-5:-1, 3]))
+    mon_row_asc = np.log2(np.sum(np.abs(mono_row[1:16] - mono_row[0:15] + 1)))
 
     # print game_board
     # print ''
@@ -93,19 +99,18 @@ def costEval(game_board):
     # find the number of open spaces
     numblocks = np.where(game_board == 0)
     numblocks = np.size(numblocks, axis=1)
-    numblocks = 15-numblocks
-
+    numblocks = 15 - numblocks
 
     # Calculate Cost
     # cost = distance1 + distance2 + distance3 + distance4 + numblocks + cornerDist - game_board.max()
     # cost = 2*numblocks + cornerDist + 4*np.log2(h_cost) + 4*np.log2(v_cost) - game_board.max()
-    cost = 2*numblocks + 2*cornerDist + 8*np.min([mon_row_asc,mon_col_asc])  - game_board.max()
+    cost = 2 * numblocks + 2 * cornerDist + 8 * np.min([mon_row_asc, mon_col_asc]) - game_board.max()
     return cost
 
 
 # Calculate the distance between two values
 def calcDistance(coords1, coords2):
-    distance = np.power(np.power(coords1[0] - coords2[0], 2) + np.power(coords1[1]-coords2[1], 2), 0.5)
+    distance = np.power(np.power(coords1[0] - coords2[0], 2) + np.power(coords1[1] - coords2[1], 2), 0.5)
     return distance
 
 
@@ -114,13 +119,13 @@ def genBoards(game_board):
     zeroInd = np.array(np.where(np.array(game_board) == 0))
     num_boards = np.size(zeroInd, axis=1)
     game_board = np.array(game_board)
-    boards = np.tile(game_board[:,:,np.newaxis],[1,1,2*num_boards])
+    boards = np.tile(game_board[:, :, np.newaxis], [1, 1, 2 * num_boards])
 
     # All boards with a 2  and added
     for ind in range(0, num_boards):
-        boards[zeroInd[0,ind],zeroInd[1, ind], ind] = 2
+        boards[zeroInd[0, ind], zeroInd[1, ind], ind] = 2
     for ind in range(0, num_boards):
-        boards[zeroInd[0, ind],zeroInd[1, ind], ind+num_boards] = 4
+        boards[zeroInd[0, ind], zeroInd[1, ind], ind + num_boards] = 4
 
     return boards
 
@@ -137,31 +142,32 @@ class RandomNode:
 
         # If root node
         if root:
-            
+
             # Use parallel execution
             self.game_board = game_board
-            usePool = 0
+            usePool = 1
+
             if usePool:
 
                 # Calculate the tree using a multiple process
                 pool = Pool(processes=4)
                 validMove = checkValidMoves(game_board)
                 try:
-                    # Evaluaate the branches of the tree
+                    # Evaluate the branches of the tree
                     if validMove[0]:
                         # self.right = MoveNode(right_move_return(game_board), depth)
                         right_game_board = right_move_return(game_board)
                         right_depth = depth
                         right_result = pool.apply_async(MoveNode, (right_game_board, right_depth))
                     else:
-                        self.left = []
+                        self.right = []
                     if validMove[1]:
                         # self.left = MoveNode(left_move_return(game_board), depth)
                         left_game_board = left_move_return(game_board)
                         left_depth = depth
                         left_result = pool.apply_async(MoveNode, (left_game_board, left_depth))
                     else:
-                        self.right = []
+                        self.left = []
                     if validMove[2]:
                         # self.up = MoveNode(up_move_return(game_board), depth)
                         up_game_board = up_move_return(game_board)
@@ -176,7 +182,7 @@ class RandomNode:
                         down_result = pool.apply_async(MoveNode, (down_game_board, down_depth))
                     else:
                         self.down = []
-                    
+
                     # Get the results from parallel pool
                     if validMove[0]:
                         self.right = right_result.get()
@@ -186,7 +192,7 @@ class RandomNode:
                         self.up = up_result.get()
                     if validMove[3]:
                         self.down = down_result.get()
-                
+
                 # Close the pool on exception
                 except:
                     pool.close()
@@ -197,23 +203,23 @@ class RandomNode:
 
             # Not using the parallel pool
             else:
-			validMove = checkValidMoves(game_board)
-			if validMove[0]:
-				self.right = MoveNode(right_move_return(game_board), depth)
-			else:
-				self.left = []
-			if validMove[1]:
-				self.left = MoveNode(left_move_return(game_board), depth)
-			else:
-				self.right = []
-			if validMove[2]:
-				self.up = MoveNode(up_move_return(game_board), depth)
-			else:
-				self.up = []
-			if validMove[3]:
-				self.down = MoveNode(down_move_return(game_board), depth)
-			else:
-				self.down = []
+                validMove = checkValidMoves(game_board)
+            if validMove[0]:
+                self.right = MoveNode(right_move_return(game_board), depth)
+            else:
+                self.right = []
+            if validMove[1]:
+                self.left = MoveNode(left_move_return(game_board), depth)
+            else:
+                self.left = []
+            if validMove[2]:
+                self.up = MoveNode(up_move_return(game_board), depth)
+            else:
+                self.up = []
+            if validMove[3]:
+                self.down = MoveNode(down_move_return(game_board), depth)
+            else:
+                self.down = []
 
         # Build branches not from the root node
         else:
@@ -226,11 +232,11 @@ class RandomNode:
             if validMove[0]:
                 self.right = MoveNode(right_move_return(game_board), depth)
             else:
-                self.left = []
+                self.right = []
             if validMove[1]:
                 self.left = MoveNode(left_move_return(game_board), depth)
             else:
-                self.right = []
+                self.left = []
             if validMove[2]:
                 self.up = MoveNode(up_move_return(game_board), depth)
             else:
@@ -241,15 +247,14 @@ class RandomNode:
                 self.down = []
 
     # Evaluate the expectimax value from each branch
-    def eval_cost(self,isroot):
+    def eval_cost(self, isroot):
 
         # Check if at root node
         if isroot:
             # Find the valid next moves, and only calculate cost for valid moves
             validMoves = checkValidMoves(self.game_board)
-            usePool = 0
-
-            #Use a parralel pool
+            usePool = 1
+            # Use a parralel pool
             if usePool:
                 pool = Pool(processes=4)
                 if validMoves[0]:
@@ -303,48 +308,60 @@ class RandomNode:
 
             # Use single threaded
             else:
-			if validMoves[0]:
-				if self.right:
-					right_cost = self.right.eval_cost()
-					#right_eval = pool.apply_async(self.right.eval_cost)
-				else:
-					right_cost = 100000
-			else:
-				right_cost = 100000
+                if validMoves[0]:
+                    if self.right:
+                        right_cost = self.right.eval_cost()
+                        # right_eval = pool.apply_async(self.right.eval_cost)
+                    else:
+                        right_cost = 100000
+                else:
+                    right_cost = 100000
 
-			if validMoves[1]:
-				if self.left:
-				    left_cost  = self.left.eval_cost()
-				    #left_eval = pool.apply_async(self.left.eval_cost)
-				else:
-				    left_cost = 100000
-			else:
-				left_cost = 100000
+                if validMoves[1]:
+                    if self.left:
+                        left_cost = self.left.eval_cost()
+                        # left_eval = pool.apply_async(self.left.eval_cost)
+                    else:
+                        left_cost = 100000
+                else:
+                    left_cost = 100000
 
-			if validMoves[2]:
-				if self.up:
-				    up_cost = self.up.eval_cost()
-				    #up_eval = pool.apply_async(self.up.eval_cost)
-				else:
-				    up_cost = 100000
-			else:
-				up_cost = 100000
+                if validMoves[2]:
+                    if self.up:
+                        up_cost = self.up.eval_cost()
+                        # up_eval = pool.apply_async(self.up.eval_cost)
+                    else:
+                        up_cost = 100000
+                else:
+                    up_cost = 100000
 
-			if validMoves[3]:
-				if self.down:
-				    down_cost = self.down.eval_cost()
-				    #down_eval = pool.apply_async(self.down.eval_cost)
-				else:
-				    down_cost = 100000
-			else:
-				down_cost = 100000
+                if validMoves[3]:
+                    if self.down:
+                        down_cost = self.down.eval_cost()
+                        # down_eval = pool.apply_async(self.down.eval_cost)
+                    else:
+                        down_cost = 100000
+                else:
+                    down_cost = 100000
 
         # If not the root node
         else:
-            left_cost  = self.left.eval_cost()
-            right_cost = self.right.eval_cost()
-            up_cost = self.up.eval_cost()
-            down_cost = self.down.eval_cost()
+            if self.left:
+                left_cost = self.left.eval_cost()
+            else:
+                left_cost = 100000
+            if self.right:
+                right_cost = self.right.eval_cost()
+            else:
+                right_cost = 100000
+            if self.up:
+                up_cost = self.up.eval_cost()
+            else:
+                up_cost = 100000
+            if self.down:
+                down_cost = self.down.eval_cost()
+            else:
+                down_cost = 100000
 
         # Calculate the min cost of the children
         cost = np.array([left_cost, right_cost, up_cost, down_cost])
@@ -360,7 +377,7 @@ class RandomNode:
             self.move = 'up'
         if ind[0][0] == 3:
             self.move = 'down'
-            
+
         return cost
 
     # Set an attribute dynamically
@@ -375,40 +392,42 @@ class RandomNode:
             msg = "'{0}' object has no attribute '{1}'"
             raise AttributeError(msg.format(type(self).__name__, name))
 
+
 class MoveNode:
 
-    def __init__(self,game_board,depth):
+    def __init__(self, game_board, depth):
 
         self.depth = depth
         self.boards = genBoards(game_board)
 
         if (depth - 1) >= 0:
             boards = genBoards(game_board)
-            for ind in range(0,np.size(boards, axis=2)):
-                name = 'child%d' %(ind)
-                self.__setattr__(name,RandomNode(boards[:, :, ind], depth-1, 0))
+            for ind in range(0, np.size(boards, axis=2)):
+                name = 'child%d' % (ind)
+                self.__setattr__(name, RandomNode(boards[:, :, ind], depth - 1, 0))
                 # self.__setattr__(name,boards[:, :, ind])
         # else:
         #     self.boards = genBoards(game_board)
 
     def eval_cost(self):
 
-        num_boards = np.size(self.boards,axis=2)
+        num_boards = np.size(self.boards, axis=2)
         costs = np.zeros([num_boards])
 
         # Terminal nodes return expected value of game boards
         if self.depth == 1:
-            for ind in range(0,num_boards):
-                costs[ind] = costEval(self.boards[:,:,ind])
+            for ind in range(0, num_boards):
+                costs[ind] = costEval(self.boards[:, :, ind])
 
         # Non terminal nodes call the children's cost eval function
         else:
-            for ind in range(0,np.size(self.boards, axis=2)):
-                name = 'child%d' %(ind)
+            for ind in range(0, np.size(self.boards, axis=2)):
+                name = 'child%d' % (ind)
                 costs[ind] = self.__getattr__(name).eval_cost(0)
 
         if num_boards != 0:
-            costs = (1/float(num_boards))*(0.9*np.sum(costs[0:int(num_boards/2)]) + 0.1*np.sum(costs[int(num_boards/2):num_boards]))
+            costs = (1 / float(num_boards)) * (0.9 * np.sum(costs[0:int(num_boards / 2)]) + 0.1 * np.sum(
+                costs[int(num_boards / 2):num_boards]))
         else:
             costs = 100000
         return costs
@@ -425,18 +444,17 @@ class MoveNode:
             msg = "'{0}' object has no attribute '{1}'"
             raise AttributeError(msg.format(type(self).__name__, name))
 
+
 def evalNextMove(game_board):
-
-
     zeroInd = np.array(np.where(np.array(game_board) == 0), dtype='int16')
     num_boards = np.size(zeroInd, axis=1)
 
-    if num_boards >13:
+    if num_boards > 10:
+        depth = 1
+    elif num_boards > 3:
         depth = 2
-    elif num_boards > 5:
-        depth = 1
     else:
-        depth = 1
+        depth = 3
     rand_node = RandomNode(game_board, depth, 1)
     rand_node.eval_cost(1)
     next_move = rand_node.move
@@ -520,9 +538,9 @@ def evalNextMove(game_board):
     # print 'rightC = %f\t leftC = %f \t upC = %f \t downC = %f'%(right_costs,left_costs,up_costs,down_costs)
     return next_move
 
+
 # Find all the valid moves
 def checkValidMoves(game_board):
-
     # Generate all game boards after all moves
     right_game_board = right_move_return(game_board)
     left_game_board = left_move_return(game_board)
@@ -530,50 +548,49 @@ def checkValidMoves(game_board):
     down_game_board = down_move_return(game_board)
 
     # Store true false in an array 0 = right, 1 = left, 2 = up, 3 = down
-    isValid = np.ones([4,1])
+    isValid = np.ones([4, 1])
     if np.array_equal(np.array(game_board), np.array(right_game_board)):
         isValid[0] = 0
-    if np.array_equal(np.array(game_board),np.array(left_game_board)):
+    if np.array_equal(np.array(game_board), np.array(left_game_board)):
         isValid[1] = 0
-    if np.array_equal(np.array(game_board),np.array(up_game_board)):
+    if np.array_equal(np.array(game_board), np.array(up_game_board)):
         isValid[2] = 0
-    if np.array_equal(np.array(game_board),np.array(down_game_board)):
+    if np.array_equal(np.array(game_board), np.array(down_game_board)):
         isValid[3] = 0
 
     return isValid
+
+
 # -------------------------- Function for calculating down move --------------------------
 def down_move_return(game_board):
-
     # Create the 2D array to store the board
     new_game_board = [[0 for x in range(4)] for x in range(4)]
     # new_game_board = np.zeros([4,4],dtype='uint8')
 
     # Move the rows down
-    for col_ind in range(0,4):
+    for col_ind in range(0, 4):
 
-        temp_ind = 3;
+        temp_ind = 3
 
-        for row_ind in range(3,-1,-1):
+        for row_ind in range(3, -1, -1):
 
             if game_board[row_ind][col_ind] != 0:
-
                 new_game_board[temp_ind][col_ind] = game_board[row_ind][col_ind]
                 temp_ind = temp_ind - 1
 
     # Combine like blocks
-    for col_ind in range(0,4):
+    for col_ind in range(0, 4):
 
         row_ind_cond = 3
 
         while row_ind_cond != 0:
 
-            if new_game_board[row_ind_cond][col_ind] == new_game_board[row_ind_cond-1][col_ind]:
+            if new_game_board[row_ind_cond][col_ind] == new_game_board[row_ind_cond - 1][col_ind]:
 
-                new_game_board[row_ind_cond][col_ind] = 2*new_game_board[row_ind_cond-1][col_ind]
+                new_game_board[row_ind_cond][col_ind] = 2 * new_game_board[row_ind_cond - 1][col_ind]
 
-                for row_ind in range(row_ind_cond-1,0,-1):
-
-                    new_game_board[row_ind][col_ind] = new_game_board[row_ind-1][col_ind]
+                for row_ind in range(row_ind_cond - 1, 0, -1):
+                    new_game_board[row_ind][col_ind] = new_game_board[row_ind - 1][col_ind]
 
                 new_game_board[0][col_ind] = 0
 
@@ -581,38 +598,36 @@ def down_move_return(game_board):
 
     return new_game_board
 
+
 # -------------------------- Function for calculating right move --------------------------
 def right_move_return(game_board):
-
     # Create the 2D array to store the board
     new_game_board = [[0 for x in range(4)] for x in range(4)]
 
     # Move the rows down
-    for col_ind in range(0,4):
+    for col_ind in range(0, 4):
 
-        temp_ind = 3;
+        temp_ind = 3
 
-        for row_ind in range(3,-1,-1):
+        for row_ind in range(3, -1, -1):
 
             if game_board[col_ind][row_ind] != 0:
-
                 new_game_board[col_ind][temp_ind] = game_board[col_ind][row_ind]
                 temp_ind = temp_ind - 1
 
     # Combine like blocks
-    for col_ind in range(0,4):
+    for col_ind in range(0, 4):
 
         row_ind_cond = 3
 
         while row_ind_cond != 0:
 
-            if new_game_board[col_ind][row_ind_cond] == new_game_board[col_ind][row_ind_cond-1]:
+            if new_game_board[col_ind][row_ind_cond] == new_game_board[col_ind][row_ind_cond - 1]:
 
-                new_game_board[col_ind][row_ind_cond] = 2*new_game_board[col_ind][row_ind_cond-1]
+                new_game_board[col_ind][row_ind_cond] = 2 * new_game_board[col_ind][row_ind_cond - 1]
 
-                for row_ind in range(row_ind_cond-1,0,-1):
-
-                    new_game_board[col_ind][row_ind] = new_game_board[col_ind][row_ind-1]
+                for row_ind in range(row_ind_cond - 1, 0, -1):
+                    new_game_board[col_ind][row_ind] = new_game_board[col_ind][row_ind - 1]
 
                 new_game_board[col_ind][0] = 0
 
@@ -620,38 +635,36 @@ def right_move_return(game_board):
 
     return new_game_board
 
+
 # -------------------------- Function for calculating up move --------------------------
 def up_move_return(game_board):
-
     # Create the 2D array to store the board
     new_game_board = [[0 for x in range(4)] for x in range(4)]
 
     # Move the rows down
-    for col_ind in range(0,4):
+    for col_ind in range(0, 4):
 
         temp_ind = 0;
 
-        for row_ind in range(0,4):
+        for row_ind in range(0, 4):
 
             if game_board[row_ind][col_ind] != 0:
-
                 new_game_board[temp_ind][col_ind] = game_board[row_ind][col_ind]
                 temp_ind = temp_ind + 1
 
     # Combine like blocks
-    for col_ind in range(0,4):
+    for col_ind in range(0, 4):
 
         row_ind_cond = 0
 
         while row_ind_cond != 3:
 
-            if new_game_board[row_ind_cond][col_ind] == new_game_board[row_ind_cond+1][col_ind]:
+            if new_game_board[row_ind_cond][col_ind] == new_game_board[row_ind_cond + 1][col_ind]:
 
-                new_game_board[row_ind_cond][col_ind] = 2*new_game_board[row_ind_cond+1][col_ind]
+                new_game_board[row_ind_cond][col_ind] = 2 * new_game_board[row_ind_cond + 1][col_ind]
 
-                for row_ind in range(row_ind_cond+1,3):
-
-                    new_game_board[row_ind][col_ind] = new_game_board[row_ind+1][col_ind]
+                for row_ind in range(row_ind_cond + 1, 3):
+                    new_game_board[row_ind][col_ind] = new_game_board[row_ind + 1][col_ind]
 
                 new_game_board[3][col_ind] = 0
 
@@ -659,38 +672,36 @@ def up_move_return(game_board):
 
     return new_game_board
 
+
 # -------------------------- Function for calculating left move --------------------------
 def left_move_return(game_board):
-
     # Create the 2D array to store the board
     new_game_board = [[0 for x in range(4)] for x in range(4)]
 
     # Move the rows down
-    for col_ind in range(0,4):
+    for col_ind in range(0, 4):
 
-        temp_ind = 0;
+        temp_ind = 0
 
-        for row_ind in range(0,4):
+        for row_ind in range(0, 4):
 
             if game_board[col_ind][row_ind] != 0:
-
                 new_game_board[col_ind][temp_ind] = game_board[col_ind][row_ind]
                 temp_ind = temp_ind + 1
 
     # Combine like blocks
-    for col_ind in range(0,4):
+    for col_ind in range(0, 4):
 
         row_ind_cond = 0
 
         while row_ind_cond != 3:
 
-            if new_game_board[col_ind][row_ind_cond] == new_game_board[col_ind][row_ind_cond+1]:
+            if new_game_board[col_ind][row_ind_cond] == new_game_board[col_ind][row_ind_cond + 1]:
 
-                new_game_board[col_ind][row_ind_cond] = 2*new_game_board[col_ind][row_ind_cond+1]
+                new_game_board[col_ind][row_ind_cond] = 2 * new_game_board[col_ind][row_ind_cond + 1]
 
-                for row_ind in range(row_ind_cond+1,3):
-
-                    new_game_board[col_ind][row_ind] = new_game_board[col_ind][row_ind+1]
+                for row_ind in range(row_ind_cond + 1, 3):
+                    new_game_board[col_ind][row_ind] = new_game_board[col_ind][row_ind + 1]
 
                 new_game_board[col_ind][3] = 0
 
