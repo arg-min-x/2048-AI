@@ -36,23 +36,201 @@ void create_children_move_node(struct move_node *leaf){
     leaf->moves = moves_array;
 }
 
+// // Create The tree
+// void create_tree_root(struct rand_node *root, int depth){
+    
+//     // If at the end of a tree
+//     // Alocate the child nodes
+//     struct move_node *left, *right, *up, *down;
+// 	root->left = NULL;
+// 	root->right = NULL;
+// 	root->up = NULL;
+// 	root->down = NULL;
+    
+// 	uint8_t *tmp_board;
+// 	tmp_board = move_left(root->game_board);
+// 	int last_ind = 0;
+// 	uint8_t rand_val = 1;
+
+// 	omp_set_num_threads(4);
+//     // Call Constructor on the next level
+// 	#pragma omp parallel
+// 	#pragma omp sections nowait
+// 	{
+// 	#pragma omp section
+// 	{
+// 		if (!compare_board(tmp_board,root->game_board)){
+// 			left = malloc(sizeof(move_node));
+// 			// Asign child nodes
+// 			root->left = left;
+		
+// 			// Asign child move boards
+// 			root->left->game_board = move_left(root->game_board);
+		
+// 			// Set the number of moves
+// 			root->left->num_moves = 2*count_zeros(root->left->game_board);
+		
+// 			// Construct child nodes
+// 			create_children_move_node(left);
+
+// 			// create random board for right node
+// 			for (int ind = 0; ind < root->left->num_moves/2; ind++) {
+// 				root->left->moves[ind]->game_board = create_random_board(root->left->game_board,&last_ind,rand_val);
+
+// 			}
+
+// 			last_ind = 0;
+// 			rand_val = 2;
+
+// 			for (int ind = root->left->num_moves/2; ind < root->left->num_moves; ind++) {
+// 				root->left->moves[ind]->game_board = create_random_board(root->left->game_board,&last_ind,rand_val);
+// 			}
+// 			// Asign random move boards
+// 			if (depth >1) {
+// 				// Call Constructor on the next level
+// 				for (int ind = 0; ind < root->left->num_moves; ind++) {
+// 					create_tree(root->left->moves[ind], depth-1);
+// 				}//for
+// 			}//if
+// 		}//if
+// 	}//pramga
+// 	#pragma omp section
+// 	{
+// 		tmp_board = move_right(root->game_board);
+// 		if (!compare_board(tmp_board,root->game_board)){
+// 			right = malloc(sizeof(move_node));
+// 			// Asign child nodes
+// 			root->right = right;
+		
+// 			// Asign child move boards
+// 			root->right->game_board = move_right(root->game_board);
+		
+// 			// Set the number of moves
+// 			root->right->num_moves = 2*count_zeros(root->right->game_board);
+		
+// 			// Construct child nodes
+// 			create_children_move_node(right);
+
+// 			// create random board for right node
+// 			for (int ind = 0; ind < root->right->num_moves/2; ind++) {
+// 				root->right->moves[ind]->game_board = create_random_board(root->right->game_board,&last_ind,rand_val);
+
+// 			}
+// 			last_ind = 0;
+// 			rand_val = 2;
+
+// 			for (int ind = root->right->num_moves/2; ind < root->right->num_moves; ind++) {
+// 				root->right->moves[ind]->game_board = create_random_board(root->right->game_board,&last_ind,rand_val);
+// 			}
+// 			// Asign random move boards
+// 			if (depth >1) {
+// 				// Call Constructor on the next level
+// 				for (int ind = 0; ind < root->right->num_moves; ind++) {
+// 					create_tree(root->right->moves[ind], depth-1);
+// 				}//for
+// 			}//if
+// 		}//if
+// 	}//pramga
+
+// 	#pragma omp section
+// 	{
+// 		tmp_board = move_up(root->game_board);
+// 		if (!compare_board(tmp_board,root->game_board)){
+// 			up = malloc(sizeof(move_node));
+// 			// Asign child nodes
+// 			root->up = up;
+		
+// 			// Asign child move boards
+// 			root->up->game_board = move_up(root->game_board);
+		
+// 			// Set the number of moves
+// 			root->up->num_moves = 2*count_zeros(root->up->game_board);
+		
+// 			// Construct child nodes
+// 			create_children_move_node(up);
+
+// 			// create random board for up node
+// 			for (int ind = 0; ind < root->up->num_moves/2; ind++) {
+// 				root->up->moves[ind]->game_board = create_random_board(root->up->game_board,&last_ind,rand_val);
+
+// 			}
+// 			last_ind = 0;
+// 			rand_val = 2;
+
+// 			for (int ind = root->up->num_moves/2; ind < root->up->num_moves; ind++) {
+// 				root->up->moves[ind]->game_board = create_random_board(root->up->game_board,&last_ind,rand_val);
+// 			}
+// 			// Asign random move boards
+// 			if (depth >1) {
+// 				// Call Constructor on the next level
+// 				for (int ind = 0; ind < root->up->num_moves; ind++) {
+// 					create_tree(root->up->moves[ind], depth-1);
+// 				}//for
+// 			}//if
+// 		}//if
+// 	}//pramga
+
+// 	#pragma omp section
+// 	{
+// 		tmp_board = move_down(root->game_board);
+// 		if (!compare_board(tmp_board,root->game_board)){
+// 			down = malloc(sizeof(move_node));
+// 			// Asign child nodes
+// 			root->down = down;
+		
+// 			// Asign child move boards
+// 			root->down->game_board = move_down(root->game_board);
+		
+// 			// Set the number of moves
+// 			root->down->num_moves = 2*count_zeros(root->down->game_board);
+		
+// 			// Construct child nodes
+// 			create_children_move_node(down);
+
+// 			// create random board for down node
+// 			for (int ind = 0; ind < root->down->num_moves/2; ind++) {
+// 				root->down->moves[ind]->game_board = create_random_board(root->down->game_board,&last_ind,rand_val);
+
+// 			}
+// 			last_ind = 0;
+// 			rand_val = 2;
+
+// 			for (int ind = root->down->num_moves/2; ind < root->down->num_moves; ind++) {
+// 				root->down->moves[ind]->game_board = create_random_board(root->down->game_board,&last_ind,rand_val);
+// 			}
+// 			// Asign random move boards
+// 			if (depth >1) {
+// 				// Call Constructor on the next level
+// 				for (int ind = 0; ind < root->down->num_moves; ind++) {
+// 					create_tree(root->down->moves[ind], depth-1);
+// 				}//for
+// 			}//if
+// 		}//if
+// 	}//pramga
+// 	}//pragma
+// }//function
+
 // Create The tree
-void create_tree_root(struct rand_node *root, int depth){
+float create_tree(struct rand_node *root, int depth, int isroot){
     
     // If at the end of a tree
     // Alocate the child nodes
     struct move_node *left, *right, *up, *down;
+    float left_cost = -100000;
+    float right_cost = -100000;
+    float up_cost = -100000;
+    float down_cost = -100000;
+
 	root->left = NULL;
 	root->right = NULL;
 	root->up = NULL;
 	root->down = NULL;
     
-	uint8_t *tmp_board;
-	tmp_board = move_left(root->game_board);
 	int last_ind = 0;
 	uint8_t rand_val = 1;
-
 	omp_set_num_threads(4);
+	uint8_t *tmp_board;
+	tmp_board = move_left(root->game_board);
     // Call Constructor on the next level
 	#pragma omp parallel
 	#pragma omp sections nowait
@@ -60,315 +238,303 @@ void create_tree_root(struct rand_node *root, int depth){
 	#pragma omp section
 	{
 		if (!compare_board(tmp_board,root->game_board)){
+			left_cost = 0;
+			float tmp_cost = 0;
 			left = malloc(sizeof(move_node));
 			// Asign child nodes
 			root->left = left;
-		
+			
 			// Asign child move boards
 			root->left->game_board = move_left(root->game_board);
-		
+			
 			// Set the number of moves
 			root->left->num_moves = 2*count_zeros(root->left->game_board);
-		
+			
 			// Construct child nodes
 			create_children_move_node(left);
 
 			// create random board for right node
 			for (int ind = 0; ind < root->left->num_moves/2; ind++) {
-				root->left->moves[ind]->game_board = create_random_board(root->left->game_board,&last_ind,rand_val);
+			    root->left->moves[ind]->game_board = create_random_board(root->left->game_board,&last_ind,rand_val);
 
 			}
-
 			last_ind = 0;
 			rand_val = 2;
 
 			for (int ind = root->left->num_moves/2; ind < root->left->num_moves; ind++) {
-				root->left->moves[ind]->game_board = create_random_board(root->left->game_board,&last_ind,rand_val);
+			    root->left->moves[ind]->game_board = create_random_board(root->left->game_board,&last_ind,rand_val);
 			}
 			// Asign random move boards
-			if (depth >1) {
-				// Call Constructor on the next level
-				for (int ind = 0; ind < root->left->num_moves; ind++) {
-					create_tree(root->left->moves[ind], depth-1);
-				}//for
-			}//if
-		}//if
-	}//pramga
+			if (depth > 1) {
+
+			    // Call Constructor on the next level
+				for (int ind = 0; ind < root->left->num_moves/2; ind++) {
+					left_cost += create_tree(root->left->moves[ind], depth-1, 0);
+				}					
+
+				left_cost = 0.9*left_cost;
+				for (int ind = root->left->num_moves/2; ind < root->left->num_moves; ind++) {
+					left_cost += 0.1*create_tree(root->left->moves[ind], depth-1, 0);
+				}
+				left_cost = left_cost/root->left->num_moves;
+
+			}else{
+				// Evaluate cost if at the terminal node
+				for (int ind = 0; ind < root->left->num_moves/2; ind++) {
+					left_cost += eval_cost_new(root->left->moves[ind]->game_board);
+				}
+				left_cost = 0.9*left_cost;
+				for (int ind = root->left->num_moves/2; ind < root->left->num_moves; ind++) {
+					left_cost += 0.1*eval_cost_new(root->left->moves[ind]->game_board);
+				}
+				left_cost = left_cost/root->left->num_moves;
+
+				// free the memory of terminal nodes
+				destroy_move_node(root->left);
+			} 
+		}
+	}
+
 	#pragma omp section
 	{
 		tmp_board = move_right(root->game_board);
 		if (!compare_board(tmp_board,root->game_board)){
+			right_cost = 0;
+			float tmp_cost = 0;
 			right = malloc(sizeof(move_node));
 			// Asign child nodes
 			root->right = right;
-		
+			
 			// Asign child move boards
 			root->right->game_board = move_right(root->game_board);
-		
+			
 			// Set the number of moves
 			root->right->num_moves = 2*count_zeros(root->right->game_board);
-		
+			
 			// Construct child nodes
 			create_children_move_node(right);
 
 			// create random board for right node
+			last_ind = 0;
+			rand_val = 1;
 			for (int ind = 0; ind < root->right->num_moves/2; ind++) {
-				root->right->moves[ind]->game_board = create_random_board(root->right->game_board,&last_ind,rand_val);
-
+			    root->right->moves[ind]->game_board = create_random_board(root->right->game_board,&last_ind,rand_val);
 			}
 			last_ind = 0;
 			rand_val = 2;
-
 			for (int ind = root->right->num_moves/2; ind < root->right->num_moves; ind++) {
-				root->right->moves[ind]->game_board = create_random_board(root->right->game_board,&last_ind,rand_val);
+			    root->right->moves[ind]->game_board = create_random_board(root->right->game_board,&last_ind,rand_val);
 			}
 			// Asign random move boards
 			if (depth >1) {
-				// Call Constructor on the next level
-				for (int ind = 0; ind < root->right->num_moves; ind++) {
-					create_tree(root->right->moves[ind], depth-1);
-				}//for
-			}//if
-		}//if
-	}//pramga
+
+			    // Call Constructor on the next level
+				for (int ind = 0; ind < root->right->num_moves/2; ind++) {
+					right_cost += create_tree(root->right->moves[ind], depth-1, 0);
+				}					
+
+				right_cost = 0.9*right_cost;
+				for (int ind = root->right->num_moves/2; ind < root->right->num_moves; ind++) {
+					right_cost += 0.1*create_tree(root->right->moves[ind], depth-1, 0);
+				}
+				right_cost = right_cost/root->right->num_moves;
+
+			}else{
+				// Evaluate cost if at the terminal node
+				for (int ind = 0; ind < root->right->num_moves/2; ind++) {
+					right_cost += eval_cost_new(root->right->moves[ind]->game_board);
+				}
+				right_cost = 0.9*right_cost;
+				for (int ind = root->right->num_moves/2; ind < root->right->num_moves; ind++) {
+					right_cost += 0.1*eval_cost_new(root->right->moves[ind]->game_board);
+				}
+				right_cost = right_cost/root->right->num_moves;
+				// free the memory of terminal nodes
+				destroy_move_node(root->right);
+			}  
+		}
+	}
 
 	#pragma omp section
 	{
 		tmp_board = move_up(root->game_board);
 		if (!compare_board(tmp_board,root->game_board)){
+			up_cost = 0;
 			up = malloc(sizeof(move_node));
 			// Asign child nodes
 			root->up = up;
-		
+			
 			// Asign child move boards
 			root->up->game_board = move_up(root->game_board);
-		
+			
 			// Set the number of moves
 			root->up->num_moves = 2*count_zeros(root->up->game_board);
-		
+			
 			// Construct child nodes
 			create_children_move_node(up);
 
 			// create random board for up node
+			last_ind = 0;
+			rand_val = 1;
 			for (int ind = 0; ind < root->up->num_moves/2; ind++) {
-				root->up->moves[ind]->game_board = create_random_board(root->up->game_board,&last_ind,rand_val);
-
+			    root->up->moves[ind]->game_board = create_random_board(root->up->game_board,&last_ind,rand_val);
 			}
 			last_ind = 0;
 			rand_val = 2;
-
 			for (int ind = root->up->num_moves/2; ind < root->up->num_moves; ind++) {
-				root->up->moves[ind]->game_board = create_random_board(root->up->game_board,&last_ind,rand_val);
+			    root->up->moves[ind]->game_board = create_random_board(root->up->game_board,&last_ind,rand_val);
 			}
+
 			// Asign random move boards
 			if (depth >1) {
-				// Call Constructor on the next level
-				for (int ind = 0; ind < root->up->num_moves; ind++) {
-					create_tree(root->up->moves[ind], depth-1);
-				}//for
-			}//if
-		}//if
-	}//pramga
+			    // Call Constructor on the next level
+				for (int ind = 0; ind < root->up->num_moves/2; ind++) {
+					up_cost += create_tree(root->up->moves[ind], depth-1, 0);
+				}					
+
+				up_cost = 0.9*up_cost;
+				for (int ind = root->up->num_moves/2; ind < root->up->num_moves; ind++) {
+					up_cost += 0.1*create_tree(root->up->moves[ind], depth-1, 0);
+				}
+				up_cost = up_cost/root->up->num_moves;
+
+			}else{
+				// Evaluate cost if at the terminal node
+				for (int ind = 0; ind < root->up->num_moves/2; ind++) {
+					up_cost += eval_cost_new(root->up->moves[ind]->game_board);
+				}
+				up_cost = 0.9*up_cost;
+				for (int ind = root->up->num_moves/2; ind < root->up->num_moves; ind++) {
+					up_cost += 0.1*eval_cost_new(root->up->moves[ind]->game_board);
+				}
+				up_cost = up_cost/root->up->num_moves;
+				// free the memory of terminal nodes
+				destroy_move_node(root->up);
+			} 
+		}
+	}
 
 	#pragma omp section
 	{
 		tmp_board = move_down(root->game_board);
 		if (!compare_board(tmp_board,root->game_board)){
+			down_cost = 0;
 			down = malloc(sizeof(move_node));
 			// Asign child nodes
 			root->down = down;
-		
+			
 			// Asign child move boards
 			root->down->game_board = move_down(root->game_board);
-		
+			
 			// Set the number of moves
 			root->down->num_moves = 2*count_zeros(root->down->game_board);
-		
+			
 			// Construct child nodes
 			create_children_move_node(down);
 
 			// create random board for down node
+			last_ind = 0;
+			rand_val = 1;
 			for (int ind = 0; ind < root->down->num_moves/2; ind++) {
-				root->down->moves[ind]->game_board = create_random_board(root->down->game_board,&last_ind,rand_val);
-
+			    root->down->moves[ind]->game_board = create_random_board(root->down->game_board,&last_ind,rand_val);
 			}
 			last_ind = 0;
 			rand_val = 2;
-
 			for (int ind = root->down->num_moves/2; ind < root->down->num_moves; ind++) {
-				root->down->moves[ind]->game_board = create_random_board(root->down->game_board,&last_ind,rand_val);
+			    root->down->moves[ind]->game_board = create_random_board(root->down->game_board,&last_ind,rand_val);
 			}
+
 			// Asign random move boards
 			if (depth >1) {
-				// Call Constructor on the next level
-				for (int ind = 0; ind < root->down->num_moves; ind++) {
-					create_tree(root->down->moves[ind], depth-1);
-				}//for
-			}//if
-		}//if
-	}//pramga
-	}//pragma
-}//function
+			    // Call Constructor on the next level
+				for (int ind = 0; ind < root->down->num_moves/2; ind++) {
+					down_cost += create_tree(root->down->moves[ind], depth-1, 0);
+				}					
 
-// Create The tree
-void create_tree(struct rand_node *root, int depth){
-    
-    // If at the end of a tree
-    // Alocate the child nodes
-    struct move_node *left, *right, *up, *down;
-
-	root->left = NULL;
-	root->right = NULL;
-	root->up = NULL;
-	root->down = NULL;
-    
-	uint8_t *tmp_board;
-	tmp_board = move_left(root->game_board);
-	int last_ind = 0;
-	uint8_t rand_val = 1;
-	if (!compare_board(tmp_board,root->game_board)){
-		left = malloc(sizeof(move_node));
-		// Asign child nodes
-		root->left = left;
-		
-		// Asign child move boards
-		root->left->game_board = move_left(root->game_board);
-		
-		// Set the number of moves
-		root->left->num_moves = 2*count_zeros(root->left->game_board);
-		
-		// Construct child nodes
-		create_children_move_node(left);
-
-		// create random board for right node
-		for (int ind = 0; ind < root->left->num_moves/2; ind++) {
-		    root->left->moves[ind]->game_board = create_random_board(root->left->game_board,&last_ind,rand_val);
-
+				down_cost = 0.9*down_cost;
+				for (int ind = root->down->num_moves/2; ind < root->down->num_moves; ind++) {
+					down_cost += 0.1*create_tree(root->down->moves[ind], depth-1, 0);
+				}
+				down_cost = down_cost/root->down->num_moves;
+			}else{
+				// Evaluate cost if at the terminal node
+				for (int ind = 0; ind < root->down->num_moves/2; ind++) {
+					down_cost += eval_cost_new(root->down->moves[ind]->game_board);
+				}
+				down_cost = 0.9*down_cost;
+				for (int ind = root->down->num_moves/2; ind < root->down->num_moves; ind++) {
+					down_cost += 0.1*eval_cost_new(root->down->moves[ind]->game_board);
+				}
+				down_cost = down_cost/root->down->num_moves;
+				// free the memory of terminal nodes
+				destroy_move_node(root->down);
+			}  
 		}
-		last_ind = 0;
-		rand_val = 2;
-
-		for (int ind = root->left->num_moves/2; ind < root->left->num_moves; ind++) {
-		    root->left->moves[ind]->game_board = create_random_board(root->left->game_board,&last_ind,rand_val);
-		}
-		// Asign random move boards
-		if (depth >1) {
-
-		    // Call Constructor on the next level
-			for (int ind = 0; ind < root->left->num_moves; ind++) {
-				create_tree(root->left->moves[ind], depth-1);
-			}
-		} 
 	}
+}
 
-	tmp_board = move_right(root->game_board);
-	if (!compare_board(tmp_board,root->game_board)){
-		right = malloc(sizeof(move_node));
-		// Asign child nodes
-		root->right = right;
-		
-		// Asign child move boards
-		root->right->game_board = move_right(root->game_board);
-		
-		// Set the number of moves
-		root->right->num_moves = 2*count_zeros(root->right->game_board);
-		
-		// Construct child nodes
-		create_children_move_node(right);
+	/* code */
 
-		// create random board for right node
-		last_ind = 0;
-		rand_val = 1;
-		for (int ind = 0; ind < root->right->num_moves/2; ind++) {
-		    root->right->moves[ind]->game_board = create_random_board(root->right->game_board,&last_ind,rand_val);
+	float max_cost = left_cost;
+	char mv;
+
+	if (!isroot){
+		mv = 'l';
+		if (right_cost > max_cost){
+			max_cost = right_cost;
+			mv = 'r';
+		}if (up_cost > max_cost){
+			max_cost = up_cost;
+			mv = 'u';
+		}if (down_cost > max_cost){
+			max_cost = down_cost;
+			mv = 'd';
 		}
-		last_ind = 0;
-		rand_val = 2;
-		for (int ind = root->right->num_moves/2; ind < root->right->num_moves; ind++) {
-		    root->right->moves[ind]->game_board = create_random_board(root->right->game_board,&last_ind,rand_val);
-		}
-		// Asign random move boards
-		if (depth >1) {
+		// printf("left cost %f\n", left_cost);
+		// printf("right cost %f\n", right_cost);
+		// printf("up cost %f\n", up_cost);
+		// printf("down cost %f\n", down_cost);
 
-		    // Call Constructor on the next level
-			for (int ind = 0; ind < root->right->num_moves; ind++) {
-				create_tree(root->right->moves[ind], depth-1);
-			}
-		} 
+	// free the root node
+	}else{
+		printf("left cost %f\n", left_cost);
+		printf("right cost %f\n", right_cost);
+		printf("up cost %f\n", up_cost);
+		printf("down cost %f\n", down_cost);
+		float mcost = 0;
+		if (right_cost > max_cost){
+			max_cost = right_cost;
+			mcost = 1;
+		}if (up_cost > max_cost){
+			max_cost = up_cost;
+			mcost = 2;
+		}if (down_cost > max_cost){
+			max_cost = down_cost;
+			mcost = 3;
+		}
+		max_cost = mcost;
 	}
-
-	tmp_board = move_up(root->game_board);
-	if (!compare_board(tmp_board,root->game_board)){
-
-		up = malloc(sizeof(move_node));
-		// Asign child nodes
-		root->up = up;
-		
-		// Asign child move boards
-		root->up->game_board = move_up(root->game_board);
-		
-		// Set the number of moves
-		root->up->num_moves = 2*count_zeros(root->up->game_board);
-		
-		// Construct child nodes
-		create_children_move_node(up);
-
-		// create random board for up node
-		last_ind = 0;
-		rand_val = 1;
-		for (int ind = 0; ind < root->up->num_moves/2; ind++) {
-		    root->up->moves[ind]->game_board = create_random_board(root->up->game_board,&last_ind,rand_val);
-		}
-		last_ind = 0;
-		rand_val = 2;
-		for (int ind = root->up->num_moves/2; ind < root->up->num_moves; ind++) {
-		    root->up->moves[ind]->game_board = create_random_board(root->up->game_board,&last_ind,rand_val);
-		}
-
-		// Asign random move boards
-		if (depth >1) {
-		    // Call Constructor on the next level
-			for (int ind = 0; ind < root->up->num_moves; ind++) {
-				create_tree(root->up->moves[ind], depth-1);
-			}
-		} 
-	}
-
-	tmp_board = move_down(root->game_board);
-	if (!compare_board(tmp_board,root->game_board)){
-		down = malloc(sizeof(move_node));
-		// Asign child nodes
-		root->down = down;
-		
-		// Asign child move boards
-		root->down->game_board = move_down(root->game_board);
-		
-		// Set the number of moves
-		root->down->num_moves = 2*count_zeros(root->down->game_board);
-		
-		// Construct child nodes
-		create_children_move_node(down);
-
-		// create random board for down node
-		last_ind = 0;
-		rand_val = 1;
-		for (int ind = 0; ind < root->down->num_moves/2; ind++) {
-		    root->down->moves[ind]->game_board = create_random_board(root->down->game_board,&last_ind,rand_val);
-		}
-		last_ind = 0;
-		rand_val = 2;
-		for (int ind = root->down->num_moves/2; ind < root->down->num_moves; ind++) {
-		    root->down->moves[ind]->game_board = create_random_board(root->down->game_board,&last_ind,rand_val);
-		}
-
-		// Asign random move boards
-		if (depth >1) {
-		    // Call Constructor on the next level
-			for (int ind = 0; ind < root->down->num_moves; ind++) {
-				create_tree(root->down->moves[ind], depth-1);
-			}
-		} 
-	}
+	free(root);
+	return max_cost;
+}
+void destroy_move_node(struct move_node *move){
+        
+        // Destroy the game boards for random nodes
+        if (move->moves[0]->game_board !=0) {
+            for (int ind = 0; ind < move->num_moves; ind++) {
+                free(move->moves[ind]->game_board);
+            }
+        }
+        
+        // Destroy random nodes
+        for (int ind=0; ind<move->num_moves; ind++) {
+            free(move->moves[ind]);
+        }
+        free(move->game_board);
+        free(move->moves);
+        
+        // destroy move nodes and root
+        free(move);
 }
 // Destroy the tree
 void destroy_tree(struct rand_node *root){
@@ -848,7 +1014,7 @@ float eval_cost_new(uint8_t *game_board){
 		max_ind_cost = 0;
 	}
 
-    return -cost + 20*num_zeros;
+    return -cost;
     // return -cost;
 }
 

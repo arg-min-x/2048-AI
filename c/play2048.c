@@ -49,45 +49,55 @@ while (keep_moving>0){
         root = malloc(sizeof(rand_node));
         root->game_board = &move_board[0];
         
+        float move = -1;
         // Create tree
 		if (num_zeros>6){
-        	create_tree_root(root,3);
+        	move = create_tree(root,3, 1);
 		}else if (num_zeros<=6 && num_zeros > 0){
-        	create_tree_root(root,4);
+        	move = create_tree(root,4, 1);
 		}else if (num_zeros==0){
-        	create_tree_root(root,5);
+        	move = create_tree(root,5, 1);
 		}
         char next_move = 'a';
-		char up, down, left, right;
-		up = 'u';
-		down = 'd';
-		left = 'l';
-		right = 'r';
-        next_move = eval_next_move_root(root);
+
+        if (move == 0)
+        {
+        	next_move = 'l';
+        }if (move == 1)
+        {
+        	next_move = 'r';
+        }if (move == 2)
+        {
+        	next_move = 'u';
+        }if (move == 3)
+        {
+        	next_move = 'd';
+        }
+        // next_move = eval_next_move_root(root);
         // printf("next move = %c, number of moves = %d,\n",next_move,num_moves);
         
         //Destory Tree
-        destroy_tree(root);
-        free(root);
+        // destroy_tree(root);
+        // free(root);
 
-		if (next_move==up){
+		if (next_move=='u'){
 			move_board = move_up(move_board);
 			move_board = add_random_number(move_board);
 			print_game_boardw(move_board);
 			printf("\n");
-		}else if(next_move==down){
+		}else if(next_move=='d'){
 			move_board = move_down(move_board);
 			move_board = add_random_number(move_board);
 			print_game_boardw(move_board);
 			printf("\n");
 		}
-		else if(next_move==left){
+		else if(next_move=='l'){
 			move_board = move_left(move_board);
 			move_board = add_random_number(move_board);
 			print_game_boardw(move_board);
 			printf("\n");
 		}
-		else if(next_move==right){
+		else if(next_move=='r'){
 			move_board = move_right(move_board);
 			move_board = add_random_number(move_board);
 			print_game_boardw(move_board);
