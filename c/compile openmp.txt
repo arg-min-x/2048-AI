@@ -1,3 +1,1 @@
-gcc -fopenmp -std=c99 get_train_data.c lib2048.c -Og -g -o get_train_data
-
-gcc -fopenmp -std=c99 play2048.c lib2048.c -Og -g -o 2048_test ./2048_test
+gcc -fopenmp -std=c99 play2048.c lib2048.c -lm -lncurses -O3 -g -o blah
