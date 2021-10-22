@@ -32,7 +32,16 @@ uint8_t game_board_orig[16] = { 0, 0, 0, 0,
                                 0, 0, 0, 0,
                                 0, 0, 0, 0,
                                 0, 0, 0, 0};
-uint8_t *move_board,*tmp_board;
+// uint8_t game_board_orig[16] = { 2, 4, 2, 4,
+//                                 4, 2, 4, 2,
+//                                 2, 4, 2, 2,
+//                                 4, 2, 4, 4};
+// uint8_t game_board_orig[16] = {3,       9,     1,    2,
+// 							   2,       8,     2,       3,
+// 							   7,     6,      0,       5,
+// 							   2,       5,      2,       2};
+uint8_t *move_board;
+uint8_t *tmp_board = malloc(16*sizeof(uint8_t));
 int rand_num = 0;
 int keep_moving = 1;
 int num_zeros = 15;
@@ -42,9 +51,8 @@ initscr();
 print_game_boardw(move_board);
 printf("\n");
 
+int ii = 0;
 while (keep_moving>0){
-//printf("\e[1;1H\e[2J");
-/*for (int ind =0; ind<100; ind++){*/
 		struct rand_node *root;
         root = malloc(sizeof(rand_node));
         root->game_board = &move_board[0];
@@ -53,12 +61,14 @@ while (keep_moving>0){
         // Create tree
 		if (num_zeros>6){
         	move = create_tree(root,3, 1);
-		}else if (num_zeros<=6 && num_zeros > 0){
+		}else if (num_zeros<=6){
         	move = create_tree(root,4, 1);
-		}else if (num_zeros==0){
-        	move = create_tree(root,5, 1);
 		}
-        char next_move = 'a';
+		// }else if (num_zeros==0){
+        // 	move = create_tree(root,5, 1);
+		// }
+		free(root);
+		char next_move = 'a';
 
         if (move == 0)
         {
@@ -73,45 +83,39 @@ while (keep_moving>0){
         {
         	next_move = 'd';
         }
-        // next_move = eval_next_move_root(root);
-        // printf("next move = %c, number of moves = %d,\n",next_move,num_moves);
-        
-        //Destory Tree
-        // destroy_tree(root);
-        // free(root);
 
 		if (next_move=='u'){
-			move_board = move_up(move_board);
+			move_board = move_up(move_board, move_board);
 			move_board = add_random_number(move_board);
 			print_game_boardw(move_board);
 			printf("\n");
 		}else if(next_move=='d'){
-			move_board = move_down(move_board);
+			move_board = move_down(move_board, move_board);
 			move_board = add_random_number(move_board);
 			print_game_boardw(move_board);
 			printf("\n");
 		}
 		else if(next_move=='l'){
-			move_board = move_left(move_board);
+			move_board = move_left(move_board, move_board);
 			move_board = add_random_number(move_board);
 			print_game_boardw(move_board);
 			printf("\n");
 		}
 		else if(next_move=='r'){
-			move_board = move_right(move_board);
+			move_board = move_right(move_board, move_board);
 			move_board = add_random_number(move_board);
 			print_game_boardw(move_board);
 			printf("\n");
 		}
 
 		// If all the moves result in an identical board state
-		tmp_board = move_left(move_board);
+		tmp_board = move_left(move_board, tmp_board);
 		if (compare_board(tmp_board,move_board)){
-			tmp_board = move_right(move_board);
+			tmp_board = move_right(move_board, tmp_board);
 			if (compare_board(tmp_board,move_board)){
-				tmp_board = move_up(move_board);
+				tmp_board = move_up(move_board, tmp_board);
 				if (compare_board(tmp_board,move_board)){
-					tmp_board = move_down(move_board);
+					tmp_board = move_down(move_board, tmp_board);
 					if (compare_board(tmp_board,move_board)){
 						keep_moving = 0;
 					}
@@ -120,42 +124,10 @@ while (keep_moving>0){
 		}
 		num_zeros = count_zeros(move_board);
 		num_moves++;
-		// system("@cls||clear");
+		ii++;
 }
+free(tmp_board);
 printf("\nYou Lose\n");
+endwin();
+print_game_board(move_board);
 }
-
-/*srand(time(NULL));*/
-/*for (int ind =0; ind<100; ind++){*/
-/*	num_zeros = count_zeros(move_board);*/
-/*	if (num_zeros>0){*/
-/*		rand_num = rand() % 3 + 0;*/
-/*		if (rand_num==0){*/
-/*			move_board = move_up(move_board);*/
-/*			move_board = add_random_number(move_board);*/
-/*			print_game_board(move_board);*/
-/*			printf("\n");*/
-/*		}else if(rand_num==1){*/
-/*			move_board = move_down(move_board);*/
-/*			move_board = add_random_number(move_board);*/
-/*			print_game_board(move_board);*/
-/*			printf("\n");*/
-/*		}*/
-/*		else if(rand_num==2){*/
-/*			move_board = move_left(move_board);*/
-/*			move_board = add_random_number(move_board);*/
-/*			print_game_board(move_board);*/
-/*			printf("\n");*/
-/*		}*/
-/*		else if(rand_num==3){*/
-/*			move_board = move_right(move_board);*/
-/*			move_board = add_random_number(move_board);*/
-/*			print_game_board(move_board);*/
-/*			printf("\n");*/
-/*		}*/
-/*	}else{*/
-/*		printf("\nyou lose\n");*/
-/*		break;*/
-/*	}*/
-/*}*/
-/*}*/

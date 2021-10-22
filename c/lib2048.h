@@ -29,20 +29,19 @@ typedef struct move_node {
 typedef struct rand_node {
     struct move_node *left, *right, *up, *down;
     uint8_t *game_board;
-    float cost;
 }rand_node;
 
 // Set LRUD struct pointers to null
 void set_move_null(struct rand_node *leaf);
 
 // Create The tree
-void create_tree_root(struct rand_node *root, int depth);
-
-// Create The tree
 float create_tree(struct rand_node *root, int depth, int isroot);
 
 // Call the create tree function on each random node
 void create_tree_next_level(struct move_node *leaf,int depth);
+
+// Destroy move node
+void destroy_move_node(struct move_node *move);
 
 // Destroy the tree
 void destroy_tree(struct rand_node *root);
@@ -62,12 +61,6 @@ float calc_cb_distances(uint8_t *game_board, int val);
 // Calculates the city block distance between all game board locs with val
 float calc_cb_distances_next(uint8_t *game_board, int val, int val2);
 
-// Eval next move
-void eval_next_move(struct rand_node *root);
-
-// Eval next move
-char eval_next_move_root(struct rand_node *root);
-
 // ========================================================================================
 //          Game Board Manipulation
 // ========================================================================================
@@ -75,20 +68,17 @@ char eval_next_move_root(struct rand_node *root);
 // Print the game board
 void print_game_board(uint8_t *game_board);
 
-//// Print the game board
-//void print_game_board_pow_2(uint8_t *game_board);
-
 // Move the game board left return pointer to new board
-uint8_t *move_left(uint8_t *game_board);
+uint8_t *move_left(uint8_t *game_board, uint8_t *move_board);
 
 // Move the game board right and return pointer to the new board
-uint8_t *move_right(uint8_t *game_board);
+uint8_t *move_right(uint8_t *game_board, uint8_t *move_board);
 
 // Move the game board up and return pointer to the new board
-uint8_t *move_up(uint8_t *game_board);
+uint8_t *move_up(uint8_t *game_board, uint8_t *move_board);
 
 // Move the game board down and return pointer to the new board
-uint8_t *move_down(uint8_t *game_board);
+uint8_t *move_down(uint8_t *game_board, uint8_t *move_board);
 
 // Count the number of zeros on the board
 uint8_t count_zeros(uint8_t *game_board);
