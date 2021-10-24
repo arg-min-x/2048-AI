@@ -36,7 +36,6 @@ void create_children_move_node(struct move_node *leaf){
     leaf->moves = moves_array;
 }
 
-
 // Create The tree
 float create_tree(struct rand_node *root, int depth, int isroot){
     
@@ -908,6 +907,7 @@ float calc_cb_distances(uint8_t *game_board, int val){
 		    // printf("%f\n", dist);
 		    dist_new = 0;
     	}
+		dist = dist/6;
 
     }else{
     	dist = 0;
@@ -970,7 +970,9 @@ float calc_cb_distances_next(uint8_t *game_board, int val, int val2){
 // Evalutate Cost function for a leaf
 float eval_cost_new(uint8_t *game_board){
 	float cost = 0;
-    cost = ((double)count_zeros(game_board))/15;
+	float cb_ideal_cost = 0;
+	uint8_t ideal_board[16] = {0};
+    cost = ((double)count_zeros(game_board))/16;
 
 	// Find the maximum of the board
     int max = 0;
@@ -982,115 +984,147 @@ float eval_cost_new(uint8_t *game_board){
 			max_ind = ind;
         }
     }
+
+	// Calculate the ideal game board
+	calc_ideal_board(game_board, ideal_board);
+
+	float cb_dist = 0;
+	float norm = 0;
+	float tmp = 0;
+	for (int val = max; val > -1; val--)
+	{
+		tmp = (float)val*(float)val;
+		cb_dist += tmp*get_cb_between_ideal(game_board, ideal_board, val);
+		norm += tmp;
+	}
+	cb_dist = cb_dist/norm;
+
 	// Put the maximum in the bottom right corner
 	if (max_ind==15){
 		max_ind_cost = 1;
-	}else if(max_ind==11||max_ind==14){
-		max_ind_cost = 0.3;
-	}else if(max_ind==10||max_ind==13||max_ind==7){
-		max_ind_cost = 0.1;
-	}else if(max_ind==9||max_ind==6||max_ind==12||max_ind==3){
-		max_ind_cost = 0.1;
-	}else if(max_ind==9||max_ind==6||max_ind==12||max_ind==3){
-		max_ind_cost = 0.0;
-	}else if(max_ind==5||max_ind==8||max_ind==2){
-		max_ind_cost = 0.0;
-	}else if(max_ind==4||max_ind==1){
-		max_ind_cost = 0.0;
-	}else if(max_ind==0){
-		max_ind_cost = 0.0;
 	}
 
-	// // apply a smoothness constraint
- //    int grad[18];
-	// int grad_sum=0;
-	// int ind_2 = 0;
-	// grad[0] = game_board[0];
-	// grad[17] = game_board[12];
-	
-	// for (int ind = 0; ind<4; ind++){
-	// 	grad[ind+1] = game_board[ind];
-	// }
-	// for (int ind = 0; ind<4; ind++){
-	// 	grad[ind+1] = game_board[ind];
-	// }
-	// ind_2 = 7;
-	// for (int ind = 4; ind<8; ind++){
-	// 	grad[ind+1] = game_board[ind_2];
-	// 	ind_2--;
-	// }
-	// for (int ind = 8; ind<12; ind++){
-	// 	grad[ind+1] = game_board[ind];
-	// }
-	// ind_2 = 15;
-	// for (int ind = 12; ind<16; ind++){
-	// 	grad[ind+1] = game_board[ind_2];
-	// 	ind_2--;
-	// }
+   	// cost = cost;
+	cost = cost - 5*cb_dist;
+	// cost = -cb_dist;
 
-	// for (int ind = 0; ind<17; ind++){
-	// 	if (ind >11){
-	// 		grad[ind] = 2.0*abs(grad[ind]-grad[ind+1]);
-	// 	}else{
-	// 		grad[ind] = abs(grad[ind]-grad[ind+1]);
-	// 	}
-	// }
-	// grad[17] = 0;
-
-	// for (int ind = 0; ind<17; ind++){
-	// 	grad_sum =+ grad[ind];
-	// }
-
-	//// apply a smoothness constraint*/
-    int grad[16];
-	int grad_sum=0;
-	int ind_2 = 0;
-	
-	for (int ind = 0; ind<4; ind++){
-		grad[ind] = game_board[ind]*max;
-		if (max>0){
-			max--;
-		}
-	}
-	ind_2 = 7;
-	for (int ind = 4; ind<8; ind++){
-		grad[ind] = game_board[ind_2]*max;
-		ind_2--;
-		if (max>0){
-			max--;
-		}
-	}
-	for (int ind = 8; ind<12; ind++){
-		grad[ind] = game_board[ind]*max;
-		if (max>0){
-			max--;
-		}
-	}
-	ind_2 = 15;
-
-	for (int ind = 12; ind<16; ind++){
-		grad[ind] = game_board[ind_2]*max;
-		if (max>0){
-			max--;
-		}
-		ind_2--;
-	}
-
-	for (int ind = 0; ind<17; ind++){
-		grad[ind] = abs(grad[ind]);
-	}
-	grad[17] = 0;
-
-	for (int ind = 0; ind<17; ind++){
-		grad_sum =+ grad[ind]*grad[ind]*grad[ind];
-	}
-
-
-   	cost = cost;
-/*    cost =  1.5*cost + max/16 + 100*max_ind_cost - 0.25*grad_sum;
-/*	cost =  cost + max/16 - 0.5*grad_sum ;*/
-/*   cost =  cost + 2*max_ind_cost*max_ind_cost;*/
-/*	printf("cost %f\n",cost);*/
-/*	cost = max_ind_cost;*/
     return cost;
+}
+
+
+float get_cb_between_ideal(uint8_t *game_board, uint8_t *ideal_board, int val){
+    uint8_t ideal_indx[15];
+    uint8_t ideal_indy[15];
+    uint8_t game_indx[15];
+    uint8_t game_indy[15];
+    uint8_t jj = 0;
+    uint8_t kk = 0;
+
+    // printf("\nval = %d\n", val);
+    // printf("Game Board locs\n");
+    // Get the x y locations of val in game board
+    for (int i = 0; i < 16; ++i)
+    {
+        if ((int)game_board[i] == val)
+        {
+            game_indx[jj] = i % 4;
+            game_indy[jj] = i/4;
+            // printf("%d, %d\n", game_indx[jj], game_indy[jj]);
+            jj++;
+
+        }
+    }
+
+    // Get the x y locations of val in ideal board
+    // printf("Ideal Board locs\n");
+    for (int i = 0; i < 16; ++i)
+    {
+        if ((int)ideal_board[i] == val)
+        {
+            ideal_indx[kk] = i % 4;
+            ideal_indy[kk] = i/4;
+            // printf("%d, %d\n", ideal_indx[kk], ideal_indy[kk]);
+            kk++;
+
+        }
+    }
+
+    // Get cb distance to nearest vale in ideal board
+    int cb_dist = 100;
+    int cb_dist_tmp = 100;
+    float ret_cb = 0;
+    float *cb_arr;
+    cb_arr = malloc(jj*sizeof(float));
+    for (int game_ind = 0; game_ind < jj; game_ind++)
+    {
+        int cb_dist = 100;
+        int cb_dist_tmp = 100;
+        for (int ideal_ind = 0; ideal_ind < kk; ideal_ind++)
+        {
+
+            cb_dist_tmp = abs(game_indx[game_ind] - ideal_indx[ideal_ind]) + abs(game_indy[game_ind] - ideal_indy[ideal_ind]);
+            // printf("dist x%d, y%d, x%d, y%d dist%d\n", game_indx[game_ind], game_indy[game_ind], ideal_indx[ideal_ind], ideal_indy[ideal_ind], cb_dist_tmp);
+            if (cb_dist_tmp < cb_dist)
+            {
+                cb_dist = cb_dist_tmp;
+            }
+        }
+        cb_arr[game_ind] = (float)cb_dist/6;
+        
+    }
+
+    for (int i = 0; i < jj; i++)
+    {
+        // printf("cb arr %f\n", cb_arr[i]);
+        ret_cb += cb_arr[i];
+    }
+    // printf("return cb %f\n", ret_cb);
+    free(cb_arr);
+    return(ret_cb);
+}
+
+
+int comp (const void * elem1, const void * elem2) 
+{
+    int f = *((uint8_t*)elem1);
+    int s = *((uint8_t*)elem2);
+    if (f > s) return  1;
+    if (f < s) return -1;
+    return 0;
+}
+
+
+void calc_ideal_board(uint8_t * game_board, uint8_t *ideal_board){
+    uint8_t tmp_row[4] = {0};
+
+    // copy game board into ideal boar
+    for (int i = 0; i < 16; i++)
+    {
+        ideal_board[i] = game_board[i];
+    }
+
+
+    // sort the ideal board
+    qsort(ideal_board, 16, sizeof(uint8_t), comp);
+
+    // reverse first row
+    for (int i = 3; i >-1; i--)
+    {
+        tmp_row[3-i] = ideal_board[i];
+    }
+    for (int i = 0; i < 4; i++)
+    {
+        ideal_board[i] = tmp_row[i];
+    }
+
+    // Reverse 3rd row
+    for (int i = 11; i >7; i--)
+    {
+        tmp_row[11-i] = ideal_board[i];
+    }
+
+    for (int i = 8; i < 12; i++)
+    {
+        ideal_board[i] = tmp_row[i-8];
+    }
 }

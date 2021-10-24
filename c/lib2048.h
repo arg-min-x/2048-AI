@@ -91,4 +91,11 @@ uint8_t *create_random_board(uint8_t *game_board, int *last_zero_ind, uint8_t ra
 
 // Compare to boards return 1 if they are the same
 uint8_t compare_board(uint8_t *board1, uint8_t *board2);
+
+float get_cb_between_ideal(uint8_t *game_board, uint8_t *ideal_board, int val);
+
+int comp (const void * elem1, const void * elem2);
+
+void calc_ideal_board(uint8_t * game_board, uint8_t *ideal_board);
+
 #endif /* lib2048_h */
