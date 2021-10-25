@@ -1097,14 +1097,14 @@ while (keep_moving>0){
 		int a = 6;
 		int b = 1;
 
-        move = create_tree(root,3, 1);
-		// if (num_zeros>a){
-        // 	move = create_tree(root,3, 1);
-		// }else if (num_zeros<=a && num_zeros>b){
-        // 	move = create_tree(root,4, 1);
-		// }else{
-        // 	move = create_tree(root,5, 1);
-		// }
+        // move = create_tree(root,1, 1);
+		if (num_zeros>a){
+        	move = create_tree(root,3, 1);
+		}else if (num_zeros<=a && num_zeros>b){
+        	move = create_tree(root,4, 1);
+		}else{
+        	move = create_tree(root,5, 1);
+		}
 		free(root);
 		char next_move = 'a';
 
