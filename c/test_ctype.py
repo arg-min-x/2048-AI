@@ -45,4 +45,9 @@ for ii in range(20):
     return_array = np.power(2, return_array)
     max.append(return_array.max())
     b_sum.append(return_array.sum())
+print("max")
+print(max)
+
+print('sum')
+print(b_sum)
 print(return_array)
