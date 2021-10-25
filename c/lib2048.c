@@ -11,6 +11,8 @@
 #include <time.h>
 #include <math.h>
 #include <omp.h>
+#include <ncurses.h>
+
 // ========================================================================================
 //          Game Tree Structures and functions
 // ========================================================================================
@@ -791,12 +793,12 @@ uint8_t *add_random_number(uint8_t *game_board){
 
 // ========================================================================================
 // Evalutate Cost function for a leaf
-float eval_cost(uint8_t *game_board){
+float eval_cost_new(uint8_t *game_board){
 	float cost = 0;
-	// float cost2 = 0;
-	int next = 0;
-	int keep_looking = 1;
-	int ind_on_board = 0;
+	float cb_ideal_cost = 0;
+	uint8_t ideal_board[16] = {0};
+    cost = ((double)count_zeros(game_board))/16;
+
 	// Find the maximum of the board
     int max = 0;
 	uint8_t max_ind = 0;
@@ -808,65 +810,30 @@ float eval_cost(uint8_t *game_board){
         }
     }
 
-    for (int ind = max; ind > 0; --ind)
-    {
-    	// Calculate cb distance for same values
-    	cost += ind * calc_cb_distances(game_board, ind);
-    	// printf("cost = %f\n", cost);
-    	// Check if the curren int is on the game board
-    	ind_on_board = 0;
-    	for (int bind = 0; bind < 16; ++bind)
-    	{
-    		if (game_board[bind] == ind)
-    		{
-    			ind_on_board = 1;
-    			// printf("ind on board %d\n", ind);
-    			break;
-    		}
-    	}
+	// Calculate the ideal game board
+	calc_ideal_board(game_board, ideal_board);
 
-    	// If the ind is on game board and ind > 1
-    	if ( ind > 1 && ind_on_board){
-    		keep_looking = 1;
-    		next = ind-1;
-    		
-    		while (keep_looking){
-    			for (int bind = 0; bind < 16; ++bind)
-    			{
-    				if (game_board[bind] == next)
-    				{
-    					keep_looking = 0;
-    					break;
-    				}
-    			}
-    			if (keep_looking)
-    			{
-    				next--;
-    			}
-    			if (next == 0)
-    			{
-    				keep_looking = 0;
-    			}
-    		}
-
-    		// printf("ind = %d, next=%d\n", ind, next);
-    		cost += 0.3*next*calc_cb_distances_next(game_board, ind, next);
-    		// printf("cost2 = %f\n", cost2);
-    	}
-    }
-    
-    uint8_t num_zeros = 0;
-    num_zeros = count_zeros(game_board);
+	float cb_dist = 0;
+	float norm = 0;
+	float tmp = 0;
+	for (int val = max; val > -1; val--)
+	{
+		tmp = (float)val*(float)val;
+		cb_dist += tmp*get_cb_between_ideal(game_board, ideal_board, val);
+		norm += tmp;
+	}
+	cb_dist = cb_dist/norm;
 
 	// Put the maximum in the bottom right corner
-	if (max_ind==15 || max_ind == 3 || max_ind == 0 || max_ind == 12){
-		max_ind_cost = 1000.0;
-	}else{
-		max_ind_cost = 0;
+	if (max_ind==15){
+		max_ind_cost = 1;
 	}
 
-    return -cost;
-    // return -cost;
+   	// cost = cost;
+	cost = cost - 5*cb_dist;
+	// cost = -cb_dist;
+
+    return cost;
 }
 
 float calc_cb_distances(uint8_t *game_board, int val){
@@ -968,50 +935,6 @@ float calc_cb_distances_next(uint8_t *game_board, int val, int val2){
 
 // ========================================================================================
 // Evalutate Cost function for a leaf
-float eval_cost_new(uint8_t *game_board){
-	float cost = 0;
-	float cb_ideal_cost = 0;
-	uint8_t ideal_board[16] = {0};
-    cost = ((double)count_zeros(game_board))/16;
-
-	// Find the maximum of the board
-    int max = 0;
-	uint8_t max_ind = 0;
-	float max_ind_cost = 0;
-    for (int ind = 0; ind<16; ind++) {
-        if (max<(int)game_board[ind]) {
-            max = (int)game_board[ind];
-			max_ind = ind;
-        }
-    }
-
-	// Calculate the ideal game board
-	calc_ideal_board(game_board, ideal_board);
-
-	float cb_dist = 0;
-	float norm = 0;
-	float tmp = 0;
-	for (int val = max; val > -1; val--)
-	{
-		tmp = (float)val*(float)val;
-		cb_dist += tmp*get_cb_between_ideal(game_board, ideal_board, val);
-		norm += tmp;
-	}
-	cb_dist = cb_dist/norm;
-
-	// Put the maximum in the bottom right corner
-	if (max_ind==15){
-		max_ind_cost = 1;
-	}
-
-   	// cost = cost;
-	cost = cost - 5*cb_dist;
-	// cost = -cb_dist;
-
-    return cost;
-}
-
-
 float get_cb_between_ideal(uint8_t *game_board, uint8_t *ideal_board, int val){
     uint8_t ideal_indx[15];
     uint8_t ideal_indy[15];
@@ -1127,4 +1050,112 @@ void calc_ideal_board(uint8_t * game_board, uint8_t *ideal_board){
     {
         ideal_board[i] = tmp_row[i-8];
     }
+}
+
+
+void print_game_boardw(uint8_t *game_board){
+	clear();
+	int n_board[16];
+	for (int i = 0; i < 16; ++i)
+	{
+		n_board[i] = pow(2, game_board[i]);
+		if (n_board[i]==1)
+		{
+			n_board[i] = 0;
+		}
+	}
+    for (int ind = 0; ind < 4; ind++) {
+        printw("%d\t%d\t%d\t%d\n",n_board[0+4*ind],n_board[1+4*ind],n_board[2+4*ind]
+               ,n_board[3+4*ind]);
+    }
+    refresh();
+}
+
+// Test the tree creation and deletion
+uint8_t *play_2048(uint8_t * game_board) {
+
+
+uint8_t *move_board;
+uint8_t *tmp_board = malloc(16*sizeof(uint8_t));
+int keep_moving = 1;
+int num_zeros = 15;
+int num_moves = 0;
+move_board = add_random_number(game_board);
+
+initscr();
+print_game_boardw(move_board);
+printf("\n");
+
+int ii = 0;
+while (keep_moving>0){
+		struct rand_node *root;
+        root = malloc(sizeof(rand_node));
+        root->game_board = &move_board[0];
+        
+        float move = -1;
+        // Create tree
+		int a = 6;
+		int b = 1;
+
+        move = create_tree(root,3, 1);
+		// if (num_zeros>a){
+        // 	move = create_tree(root,3, 1);
+		// }else if (num_zeros<=a && num_zeros>b){
+        // 	move = create_tree(root,4, 1);
+		// }else{
+        // 	move = create_tree(root,5, 1);
+		// }
+		free(root);
+		char next_move = 'a';
+
+        if (move == 0){
+        	next_move = 'l';
+        }if (move == 1){
+        	next_move = 'r';
+        }if (move == 2){
+        	next_move = 'u';
+        }if (move == 3){
+        	next_move = 'd';
+        }
+
+		if (next_move=='u'){
+			move_board = move_up(move_board, move_board);
+			move_board = add_random_number(move_board);
+			print_game_boardw(move_board);
+		}else if(next_move=='d'){
+			move_board = move_down(move_board, move_board);
+			move_board = add_random_number(move_board);
+			print_game_boardw(move_board);
+		}
+		else if(next_move=='l'){
+			move_board = move_left(move_board, move_board);
+			move_board = add_random_number(move_board);
+			print_game_boardw(move_board);
+		}
+		else if(next_move=='r'){
+			move_board = move_right(move_board, move_board);
+			move_board = add_random_number(move_board);
+			print_game_boardw(move_board);
+		}
+
+		// If all the moves result in an identical board state
+		tmp_board = move_left(move_board, tmp_board);
+		if (compare_board(tmp_board,move_board)){
+			tmp_board = move_right(move_board, tmp_board);
+			if (compare_board(tmp_board,move_board)){
+				tmp_board = move_up(move_board, tmp_board);
+				if (compare_board(tmp_board,move_board)){
+					tmp_board = move_down(move_board, tmp_board);
+					if (compare_board(tmp_board,move_board)){
+						keep_moving = 0;
+					}
+				}
+			}
+		}
+		num_zeros = count_zeros(move_board);
+		num_moves++;
+		ii++;
+}
+free(tmp_board);
+endwin();
 }

@@ -1,1 +1,10 @@
 gcc -fopenmp -std=c99 play2048.c lib2048.c -lm -lncurses -O3 -g -o blah
+
+## build lib2048.so
+gcc -shared -fPIC -fopenmp -std=c99 lib2048.c -lm -lncurses -03 -o lib2048.so
+
+# build play2048 using shared lib2048.so
+gcc -fPIC -fopenmp -std=c99 play2048.c -L. -l:lib2048.so -lm -lncurses -O3 -o play2048.so
+
+# only way I could get test_play_2048 to compile
+gcc -fopenmp -std=c99 test_play_2048.c lib2048.c -lm -lncurses -O3 -g -o blah

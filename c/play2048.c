@@ -6,23 +6,6 @@
 #include <ncurses.h>
 #include <math.h>
 
-void print_game_boardw(uint8_t *game_board){
-	clear();
-	int n_board[16];
-	for (int i = 0; i < 16; ++i)
-	{
-		n_board[i] = pow(2, game_board[i]);
-		if (n_board[i]==1)
-		{
-			n_board[i] = 0;
-		}
-	}
-    for (int ind = 0; ind < 4; ind++) {
-        printw("%d\t%d\t%d\t%d\n",n_board[0+4*ind],n_board[1+4*ind],n_board[2+4*ind]
-               ,n_board[3+4*ind]);
-    }
-    refresh();
-}
 
 // Test the tree creation and deletion
 int main(int argc, const char * argv[]) {
@@ -112,7 +95,5 @@ while (keep_moving>0){
 		ii++;
 }
 free(tmp_board);
-printf("\nYou Lose\n");
 endwin();
-print_game_board(move_board);
 }

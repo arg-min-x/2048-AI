@@ -13,6 +13,7 @@
 #include <stdlib.h>
 #include <stdint.h>
 #include <math.h>
+#include <ncurses.h>
 
 // ========================================================================================
 //          Game Tree Structures and functions
@@ -48,9 +49,6 @@ void destroy_tree(struct rand_node *root);
 
 // Destory a move node
 void destroy_move_node(struct move_node *move);
-
-// Evalutate Cost function for a leaf
-float eval_cost(uint8_t *game_board);
 
 // Evalutate Cost function for a leaf
 float eval_cost_new(uint8_t *game_board);
@@ -98,4 +96,7 @@ int comp (const void * elem1, const void * elem2);
 
 void calc_ideal_board(uint8_t * game_board, uint8_t *ideal_board);
 
+void print_game_boardw(uint8_t *game_board);
+
+uint8_t *play_2048(uint8_t *game_board);
 #endif /* lib2048_h */
