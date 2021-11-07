@@ -21,7 +21,6 @@ void print_game_board(uint8_t *game_board){
 }
 
 void print_game_boardw(uint8_t *game_board){
-	clear();
 	int n_board[16];
 	for (int i = 0; i < 16; ++i)
 	{
@@ -315,12 +314,6 @@ uint8_t *add_random_number(uint8_t *game_board){
 	}
 
 	game_board[zero_inds[rand_ind]] = rand_num;
-	//printf("\n rand ind %d  zero ind %d rand num %d\n",rand_ind, zero_inds[rand_ind], rand_num);
-
-	
-	//for (int ind = 0; ind<num_zeros; ind++){
-	//	printf("%d ",zero_inds[ind]);	
-	//}
 	free(zero_inds);
     return game_board;
 }

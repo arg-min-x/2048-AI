@@ -13,6 +13,7 @@
 #include <math.h>
 #include <omp.h>
 #include <ncurses.h>
+#include <unistd.h>
 
 // ========================================================================================
 //          Game Tree Structures and functions
@@ -58,15 +59,18 @@ float create_tree(struct rand_node *root, int depth, int isroot){
 	int last_ind = 0;
 	uint8_t rand_val = 1;
 	omp_set_num_threads(4);
-	uint8_t *tmp_board = malloc(16*sizeof(uint8_t));
-	tmp_board = move_left(root->game_board, tmp_board);
+	
+
     // Call Constructor on the next level
 	#pragma omp parallel
 	#pragma omp sections nowait
 	{
 	#pragma omp section
 	{
+		uint8_t *tmp_board = malloc(16*sizeof(uint8_t));
+		tmp_board = move_left(root->game_board, tmp_board);
 		if (!compare_board(tmp_board,root->game_board)){
+
 			left_cost = 0;
 			float tmp_cost = 0;
 			left = malloc(sizeof(move_node));
@@ -107,7 +111,7 @@ float create_tree(struct rand_node *root, int depth, int isroot){
 				for (int ind = root->left->num_moves/2; ind < root->left->num_moves; ind++) {
 					left_cost += 0.1*create_tree(root->left->moves[ind], depth-1, 0);
 				}
-				left_cost = left_cost/root->left->num_moves;
+				left_cost = 2*left_cost/root->left->num_moves;
 				
 				// Destroy the move at the end
 				destroy_move_node(left);
@@ -121,16 +125,18 @@ float create_tree(struct rand_node *root, int depth, int isroot){
 				for (int ind = root->left->num_moves/2; ind < root->left->num_moves; ind++) {
 					left_cost += 0.1*eval_cost_new(root->left->moves[ind]->game_board);
 				}
-				left_cost = left_cost/root->left->num_moves;
+				left_cost = 2*left_cost/root->left->num_moves;
 				
 				// Destroy the move at the end
 				destroy_move_node(left);
 			} 
 		}
+		free(tmp_board);
 	}
 
 	#pragma omp section
 	{
+		uint8_t *tmp_board = malloc(16*sizeof(uint8_t));
 		tmp_board = move_right(root->game_board, tmp_board);
 		if (!compare_board(tmp_board,root->game_board)){
 			right_cost = 0;
@@ -172,7 +178,7 @@ float create_tree(struct rand_node *root, int depth, int isroot){
 				for (int ind = root->right->num_moves/2; ind < root->right->num_moves; ind++) {
 					right_cost += 0.1*create_tree(root->right->moves[ind], depth-1, 0);
 				}
-				right_cost = right_cost/root->right->num_moves;
+				right_cost = 2*right_cost/root->right->num_moves;
 				
 				// Destroy the move at the end
 				destroy_move_node(right);
@@ -185,16 +191,18 @@ float create_tree(struct rand_node *root, int depth, int isroot){
 				for (int ind = root->right->num_moves/2; ind < root->right->num_moves; ind++) {
 					right_cost += 0.1*eval_cost_new(root->right->moves[ind]->game_board);
 				}
-				right_cost = right_cost/root->right->num_moves;
+				right_cost = 2*right_cost/root->right->num_moves;
 
 				// Destroy the move at the end
 				destroy_move_node(right);
 			}  
 		}
+		free(tmp_board);
 	}
 
 	#pragma omp section
 	{
+		uint8_t *tmp_board = malloc(16*sizeof(uint8_t));
 		tmp_board = move_up(root->game_board, tmp_board);
 		if (!compare_board(tmp_board,root->game_board)){
 			up_cost = 0;
@@ -235,7 +243,7 @@ float create_tree(struct rand_node *root, int depth, int isroot){
 				for (int ind = root->up->num_moves/2; ind < root->up->num_moves; ind++) {
 					up_cost += 0.1*create_tree(root->up->moves[ind], depth-1, 0);
 				}
-				up_cost = up_cost/root->up->num_moves;
+				up_cost = 2*up_cost/root->up->num_moves;
 
 				// Destroy the move at the end
 				destroy_move_node(up);
@@ -248,16 +256,18 @@ float create_tree(struct rand_node *root, int depth, int isroot){
 				for (int ind = root->up->num_moves/2; ind < root->up->num_moves; ind++) {
 					up_cost += 0.1*eval_cost_new(root->up->moves[ind]->game_board);
 				}
-				up_cost = up_cost/root->up->num_moves;
+				up_cost = 2*up_cost/root->up->num_moves;
 				
 				// Destroy the move at the end
 				destroy_move_node(up);
 			} 
 		}
+		free(tmp_board);
 	}
 
 	#pragma omp section
 	{
+		uint8_t *tmp_board = malloc(16*sizeof(uint8_t));
 		tmp_board = move_down(root->game_board, tmp_board);
 		if (!compare_board(tmp_board,root->game_board)){
 			down_cost = 0;
@@ -298,7 +308,7 @@ float create_tree(struct rand_node *root, int depth, int isroot){
 				for (int ind = root->down->num_moves/2; ind < root->down->num_moves; ind++) {
 					down_cost += 0.1*create_tree(root->down->moves[ind], depth-1, 0);
 				}
-				down_cost = down_cost/root->down->num_moves;
+				down_cost = 2*down_cost/root->down->num_moves;
 
 				// Destroy the move at the end
 				destroy_move_node(down);
@@ -311,39 +321,35 @@ float create_tree(struct rand_node *root, int depth, int isroot){
 				for (int ind = root->down->num_moves/2; ind < root->down->num_moves; ind++) {
 					down_cost += 0.1*eval_cost_new(root->down->moves[ind]->game_board);
 				}
-				down_cost = down_cost/root->down->num_moves;
+				down_cost = 2*down_cost/root->down->num_moves;
 
 				// Destroy the move at the end
 				destroy_move_node(down);
 			}
 		}
+		free(tmp_board);
 	}
-}
+	}
 
-	/* code */
 
 	float max_cost = left_cost;
-	char mv;
 
 	if (!isroot){
-		mv = 'l';
 		if (right_cost > max_cost){
 			max_cost = right_cost;
-			mv = 'r';
 		}if (up_cost > max_cost){
 			max_cost = up_cost;
-			mv = 'u';
 		}if (down_cost > max_cost){
 			max_cost = down_cost;
-			mv = 'd';
 		}
 
 	// free the root node
 	}else{
-		// printf("left cost %f\n", left_cost);
-		// printf("right cost %f\n", right_cost);
-		// printf("up cost %f\n", up_cost);
-		// printf("down cost %f\n", down_cost);
+		clear();
+		printw("left cost %f\n", left_cost);
+		printw("right cost %f\n", right_cost);
+		printw("up cost %f\n", up_cost);
+		printw("down cost %f\n", down_cost);
 		float mcost = 0;
 		if (right_cost > max_cost){
 			max_cost = right_cost;
@@ -354,10 +360,11 @@ float create_tree(struct rand_node *root, int depth, int isroot){
 		}if (down_cost > max_cost){
 			max_cost = down_cost;
 			mcost = 3;
+		}if (max_cost == -100000){
+			mcost =4;
 		}
 		max_cost = mcost;
 	}
-	free(tmp_board);
 	return max_cost;
 }
 
@@ -516,28 +523,69 @@ float eval_cost_new(uint8_t *game_board){
 			max_ind = ind;
         }
     }
+    
+    // Calculate city bloc distances
+    float cb_distance = 0;
+	float sums = 0;
+    for (int ii = max; ii > 0; ii--)
+    {
+        cb_distance += ii*calc_cb_distances(game_board, ii);
+		sums +=ii;
+    }
+    cb_distance = cb_distance/(float)max;
+    
 
-	// Calculate the ideal game board
-	calc_ideal_board(game_board, ideal_board);
+    // float grad_cost = 0;
+    // grad_cost = gradient(game_board);
 
-	float cb_dist = 0;
-	float norm = 0;
-	float tmp = 0;
-	for (int val = max; val > -1; val--)
-	{
-		tmp = (float)val*(float)val;
-		cb_dist += tmp*get_cb_between_ideal(game_board, ideal_board, val);
-		norm += tmp;
-	}
-	cb_dist = cb_dist/norm;
+    // // difference from ideal
+    // calc_ideal_board(game_board, ideal_board);
+    // float diff_cost = 0;
+    // float sum = 0;
+    // for (int ii = 0; ii < 16; ii++)
+    // {
+    //     diff_cost += abs(game_board[ii] - ideal_board[ii]);
+    //     sum += game_board[ii];
+    // }
+    // diff_cost = diff_cost / sum;
 
-	// Put the maximum in the bottom right corner
-	if (max_ind==15){
-		max_ind_cost = 1;
-	}
+	// // Calculate the ideal game board
+	// calc_ideal_board(game_board, ideal_board);
 
-   	// cost = cost;
-	cost = 2*cost - 8*cb_dist + max_ind_cost;
+	// float cb_dist = 0;
+	// float norm = 0;
+	// float tmp = 0;
+	// for (int val = max; val > -1; val--)
+	// {
+	// 	tmp = (float)val*(float)val;
+	// 	cb_dist += tmp*get_cb_between_ideal(game_board, ideal_board, val);
+	// 	norm += tmp;
+	// }
+	// cb_dist = cb_dist/norm;
+
+
+	// // Put the maximum in the bottom right corner
+	// if (max_ind==15){
+	// 	max_ind_cost = 1;
+	// }else if (max_ind==0)
+    // {
+    //     max_ind_cost = 1;
+    // }else if (max_ind == 3)
+    // {
+    //     max_ind_cost = 1;
+    // }else if (max_ind == 12)
+    // {
+    //     max_ind_cost == 1;
+    // }
+    
+    
+    
+
+   	// cost = -1*cb_distance;
+	// cost = 1*cost;
+    // cost = - 0.5*diff_cost + 0.2*max_ind_cost - 0.5*cb_distance;
+    // cost = cost - 0.9*diff_cost;
+	// cost = 2*cost - 8*cb_dist + max_ind_cost;
 	// cost = cost - 5*cb_dist;
 	// cost = -cb_dist;
 
@@ -583,7 +631,7 @@ float calc_cb_distances(uint8_t *game_board, int val){
 		    dist_new = 0;
     	}
 		dist = dist/6;
-
+    dist = dist/(float)jj;
     }else{
     	dist = 0;
     }
@@ -714,7 +762,6 @@ float get_cb_between_ideal(uint8_t *game_board, uint8_t *ideal_board, int val){
     return(ret_cb);
 }
 
-
 int comp (const void * elem1, const void * elem2) 
 {
     int f = *((uint8_t*)elem1);
@@ -723,7 +770,6 @@ int comp (const void * elem1, const void * elem2)
     if (f < s) return -1;
     return 0;
 }
-
 
 void calc_ideal_board(uint8_t * game_board, uint8_t *ideal_board){
     uint8_t tmp_row[4] = {0};
@@ -760,93 +806,120 @@ void calc_ideal_board(uint8_t * game_board, uint8_t *ideal_board){
     }
 }
 
+float gradient(uint8_t *game_b){
 
+    float b_sum = 0.0;
+    for (int ii = 0; ii < 16; ii++)
+    {
+        b_sum += (float)game_b[ii];
+    }
+    
+    float grady = 0.0;
+    for (int kk = 0; kk < 3; kk++)
+    {
+    for (int ii = 0; ii < 4; ii++)
+        {
+            grady += (float)abs(game_b[ii + 4*kk] - game_b[ii + 4 + 4*kk]);
+        }
+    }
+
+    float gradx = 0.0;
+
+    for (int kk = 0; kk < 4; kk++)
+    {
+        for (int ii = 0; ii < 3; ii++)
+        {
+            gradx += (float)abs(game_b[ii + 4*kk] - game_b[ii + 1 + 4*kk]);
+        }
+    }
+
+    gradx = (gradx + grady)/(4.0*b_sum);
+    return gradx;
+}
 
 // Test the tree creation and deletion
 uint8_t *play_2048(uint8_t * game_board) {
 
 
-uint8_t *move_board;
-uint8_t *tmp_board = malloc(16*sizeof(uint8_t));
-int keep_moving = 1;
-int num_zeros = 15;
-int num_moves = 0;
-move_board = add_random_number(game_board);
+	uint8_t *move_board;
+	move_board = add_random_number(game_board);
+	uint8_t *tmp_board = malloc(16*sizeof(uint8_t));
+	int keep_moving = 1;
+	int num_zeros = 15;
+	float move = -1;
+	int a = 8;
+	int b = 1;
+	int n = 3;
 
-initscr();
-print_game_boardw(move_board);
-printf("\n");
+	initscr();
+	print_game_boardw(move_board);
 
-int ii = 0;
-while (keep_moving>0){
-		struct rand_node *root;
-        root = malloc(sizeof(rand_node));
-        root->game_board = &move_board[0];
-        
-        float move = -1;
-        // Create tree
-		int a = 6;
-		int b = 1;
+	while (keep_moving>0){
+			move = -1;
+			struct rand_node *root;
+			root = malloc(sizeof(rand_node));
+			root->game_board = &move_board[0];
 
-        // move = create_tree(root,1, 1);
-		if (num_zeros>a){
-        	move = create_tree(root,3, 1);
-		}else if (num_zeros<=a && num_zeros>b){
-        	move = create_tree(root,4, 1);
-		}else{
-        	move = create_tree(root,5, 1);
-		}
-		free(root);
-		char next_move = 'a';
-
-        if (move == 0){
-        	next_move = 'l';
-        }if (move == 1){
-        	next_move = 'r';
-        }if (move == 2){
-        	next_move = 'u';
-        }if (move == 3){
-        	next_move = 'd';
-        }
-
-		if (next_move=='u'){
-			move_board = move_up(move_board, move_board);
-			move_board = add_random_number(move_board);
+			// Create tree
+			num_zeros = count_zeros(move_board);
+			if (num_zeros>a){
+				move = create_tree(root,n, 1);
+			}else if (num_zeros<=a && num_zeros>b){
+				move = create_tree(root,n, 1);
+			}else{
+				move = create_tree(root,n, 1);
+			}
+			free(root);
+			
+			// Print the game board
 			print_game_boardw(move_board);
-		}else if(next_move=='d'){
-			move_board = move_down(move_board, move_board);
-			move_board = add_random_number(move_board);
-			print_game_boardw(move_board);
-		}
-		else if(next_move=='l'){
-			move_board = move_left(move_board, move_board);
-			move_board = add_random_number(move_board);
-			print_game_boardw(move_board);
-		}
-		else if(next_move=='r'){
-			move_board = move_right(move_board, move_board);
-			move_board = add_random_number(move_board);
-			print_game_boardw(move_board);
-		}
+			refresh();
 
-		// If all the moves result in an identical board state
-		tmp_board = move_left(move_board, tmp_board);
-		if (compare_board(tmp_board,move_board)){
-			tmp_board = move_right(move_board, tmp_board);
+			// pick next move
+			char next_move = 'a';
+			if (move == 0){
+				next_move = 'l';
+				move_board = move_left(move_board, move_board);
+			}if (move == 1){
+				next_move = 'r';
+				move_board = move_right(move_board, move_board);
+			}if (move == 2){
+				next_move = 'u';
+				move_board = move_up(move_board, move_board);
+			}if (move == 3){
+				next_move = 'd';
+				move_board = move_down(move_board, move_board);
+			}if (move == 4){
+				next_move = 'b';
+				keep_moving = 0;
+			}
+
+			// print the move chosen
+			printw("%c\n", next_move);
+			refresh();
+			
+			// If all the moves result in an identical board state
+			tmp_board = move_left(move_board, tmp_board);
 			if (compare_board(tmp_board,move_board)){
-				tmp_board = move_up(move_board, tmp_board);
+				tmp_board = move_right(move_board, tmp_board);
 				if (compare_board(tmp_board,move_board)){
-					tmp_board = move_down(move_board, tmp_board);
+					tmp_board = move_up(move_board, tmp_board);
 					if (compare_board(tmp_board,move_board)){
-						keep_moving = 0;
+						tmp_board = move_down(move_board, tmp_board);
+						if (compare_board(tmp_board,move_board)){
+							keep_moving = 0;
+						}
 					}
 				}
 			}
-		}
-		num_zeros = count_zeros(move_board);
-		num_moves++;
-		ii++;
-}
-free(tmp_board);
-endwin();
+
+			// Add a random 2 or for to the board if not done
+			if (keep_moving)
+			{
+				move_board = add_random_number(move_board);
+			}
+			
+	}
+	free(tmp_board);
+	endwin();
 }

@@ -14,6 +14,7 @@
 #include <stdint.h>
 #include <math.h>
 #include <ncurses.h>
+#include <unistd.h>
 
 // ========================================================================================
 //          Game Tree Structures and functions
@@ -68,6 +69,8 @@ float get_cb_between_ideal(uint8_t *game_board, uint8_t *ideal_board, int val);
 int comp (const void * elem1, const void * elem2);
 
 void calc_ideal_board(uint8_t * game_board, uint8_t *ideal_board);
+
+float gradient(uint8_t *game_b);
 
 uint8_t *play_2048(uint8_t *game_board);
 #endif /* lib2048_h */
